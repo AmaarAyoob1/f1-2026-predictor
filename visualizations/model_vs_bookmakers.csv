@@ -1,0 +1,23 @@
+driver,model_prob,bookmaker_prob,edge,direction
+Max Verstappen,0.3001,0.22,0.0801,OVERWEIGHT
+George Russell,0.2145,0.28,-0.0655,UNDERWEIGHT
+Lando Norris,0.1697,0.16,0.0097,NEUTRAL
+Oscar Piastri,0.0973,0.1,-0.0027,NEUTRAL
+Charles Leclerc,0.0913,0.09,0.0013,NEUTRAL
+Lewis Hamilton,0.082,0.05,0.032,OVERWEIGHT
+Kimi Antonelli,0.012,0.04,-0.028,UNDERWEIGHT
+Carlos Sainz,0.0093,0.02,-0.0107,NEUTRAL
+Alex Albon,0.0033,0.01,-0.0067,NEUTRAL
+Isack Hadjar,0.0032,0.01,-0.0068,NEUTRAL
+Sergio Perez,0.0026,0.0,0.0026,NEUTRAL
+Fernando Alonso,0.0019,0.01,-0.0081,NEUTRAL
+Liam Lawson,0.0019,0.0,0.0019,NEUTRAL
+Nico Hulkenberg,0.0017,0.0,0.0017,NEUTRAL
+Arvid Lindblad,0.0016,0.0,0.0016,NEUTRAL
+Pierre Gasly,0.0014,0.0,0.0014,NEUTRAL
+Lance Stroll,0.0012,0.0,0.0012,NEUTRAL
+Gabriel Bortoleto,0.0012,0.0,0.0012,NEUTRAL
+Esteban Ocon,0.0011,0.0,0.0011,NEUTRAL
+Oliver Bearman,0.001,0.0,0.001,NEUTRAL
+Valtteri Bottas,0.0008,0.0,0.0008,NEUTRAL
+Franco Colapinto,0.0008,0.0,0.0008,NEUTRAL

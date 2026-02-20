@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>F1 2026 Championship Predictor</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏎️</text></svg>">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0a0f; overflow-x: hidden; }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(6px) } to { opacity:1; transform:translateY(0) } }
+    @keyframes pulse { 0%,100%{opacity:.35} 50%{opacity:1} }
+    ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+    button { cursor: pointer; }
+    button:active { transform: scale(0.97); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+
+    const TEAM_COLORS = {
+      "Mercedes": "#27F4D2", "Ferrari": "#E8002D", "Red Bull": "#3671C6",
+      "McLaren": "#FF8000", "Williams": "#64C4FF", "Racing Bulls": "#6692FF",
+      "Aston Martin": "#229971", "Haas": "#B6BABD", "Alpine": "#FF87BC",
+      "Audi": "#00E701", "Cadillac": "#FFD700",
+    };
+
+    const WDC_DATA = [
+      { driver: "Max Verstappen", team: "Red Bull", elo: 1748, mcWin: 28.9, bayesWin: 31.1, ensemble: 30.0, avgPts: 334, podiumPct: 82.4, works: true },
+      { driver: "George Russell", team: "Mercedes", elo: 1531, mcWin: 33.9, bayesWin: 9.0, ensemble: 21.5, avgPts: 338, podiumPct: 78.1, works: true },
+      { driver: "Lando Norris", team: "McLaren", elo: 1593, mcWin: 7.4, bayesWin: 26.5, ensemble: 17.0, avgPts: 305, podiumPct: 65.2, works: false },
+      { driver: "Oscar Piastri", team: "McLaren", elo: 1573, mcWin: 0.0, bayesWin: 19.4, ensemble: 9.7, avgPts: 236, podiumPct: 42.8, works: false },
+      { driver: "Charles Leclerc", team: "Ferrari", elo: 1575, mcWin: 14.1, bayesWin: 4.2, ensemble: 9.1, avgPts: 318, podiumPct: 71.3, works: true },
+      { driver: "Lewis Hamilton", team: "Ferrari", elo: 1655, mcWin: 14.6, bayesWin: 1.8, ensemble: 8.2, avgPts: 319, podiumPct: 72.0, works: true },
+      { driver: "Kimi Antonelli", team: "Mercedes", elo: 1508, mcWin: 1.0, bayesWin: 1.4, ensemble: 1.2, avgPts: 264, podiumPct: 35.6, works: true },
+      { driver: "Carlos Sainz", team: "Williams", elo: 1537, mcWin: 0.0, bayesWin: 1.9, ensemble: 0.9, avgPts: 97, podiumPct: 5.2, works: false },
+      { driver: "Alex Albon", team: "Williams", elo: 1450, mcWin: 0.0, bayesWin: 0.7, ensemble: 0.3, avgPts: 45, podiumPct: 1.1, works: false },
+      { driver: "Isack Hadjar", team: "Red Bull", elo: 1497, mcWin: 0.0, bayesWin: 0.6, ensemble: 0.3, avgPts: 74, podiumPct: 3.8, works: true },
+      { driver: "Sergio Pérez", team: "Cadillac", elo: 1501, mcWin: 0.0, bayesWin: 0.5, ensemble: 0.3, avgPts: 2, podiumPct: 0, works: false },
+      { driver: "Fernando Alonso", team: "Aston Martin", elo: 1457, mcWin: 0.0, bayesWin: 0.4, ensemble: 0.2, avgPts: 3, podiumPct: 0, works: false },
+      { driver: "Liam Lawson", team: "Racing Bulls", elo: 1489, mcWin: 0.0, bayesWin: 0.4, ensemble: 0.2, avgPts: 8, podiumPct: 0, works: false },
+      { driver: "Arvid Lindblad", team: "Racing Bulls", elo: 1500, mcWin: 0.0, bayesWin: 0.3, ensemble: 0.2, avgPts: 7, podiumPct: 0, works: false },
+      { driver: "Pierre Gasly", team: "Alpine", elo: 1465, mcWin: 0.0, bayesWin: 0.3, ensemble: 0.1, avgPts: 25, podiumPct: 0, works: false },
+      { driver: "Nico Hülkenberg", team: "Audi", elo: 1370, mcWin: 0.0, bayesWin: 0.3, ensemble: 0.2, avgPts: 0, podiumPct: 0, works: true },
+      { driver: "Esteban Ocon", team: "Haas", elo: 1448, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 20, podiumPct: 0, works: false },
+      { driver: "Oliver Bearman", team: "Haas", elo: 1490, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 16, podiumPct: 0, works: false },
+      { driver: "Lance Stroll", team: "Aston Martin", elo: 1452, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 1, podiumPct: 0, works: false },
+      { driver: "Gabriel Bortoleto", team: "Audi", elo: 1480, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 0, podiumPct: 0, works: true },
+      { driver: "Franco Colapinto", team: "Alpine", elo: 1477, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 11, podiumPct: 0, works: false },
+      { driver: "Valtteri Bottas", team: "Cadillac", elo: 1468, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 0, podiumPct: 0, works: false },
+    ];
+
+    const WCC_DATA = [
+      { team: "Ferrari", drivers: ["Hamilton", "Leclerc"], engine: "Ferrari", works: true, totalPts: 637, titleProb: 32.5, top3Pct: 88.2, pts2025: 398, testRank: 2, expertRating: 92 },
+      { team: "Mercedes", drivers: ["Russell", "Antonelli"], engine: "Mercedes", works: true, totalPts: 601, titleProb: 28.0, top3Pct: 85.1, pts2025: 469, testRank: 1, expertRating: 95 },
+      { team: "McLaren", drivers: ["Norris", "Piastri"], engine: "Mercedes (cust.)", works: false, totalPts: 541, titleProb: 22.0, top3Pct: 78.4, pts2025: 833, testRank: 4, expertRating: 82 },
+      { team: "Red Bull", drivers: ["Verstappen", "Hadjar"], engine: "Ford (RBPT)", works: true, totalPts: 408, titleProb: 15.5, top3Pct: 48.3, pts2025: 451, testRank: 3, expertRating: 85 },
+      { team: "Williams", drivers: ["Albon", "Sainz"], engine: "Mercedes (cust.)", works: false, totalPts: 142, titleProb: 1.0, top3Pct: 2.8, pts2025: 137, testRank: 7, expertRating: 58 },
+      { team: "Haas", drivers: ["Ocon", "Bearman"], engine: "Ferrari (cust.)", works: false, totalPts: 36, titleProb: 0.2, top3Pct: 0.4, pts2025: 80, testRank: 6, expertRating: 62 },
+      { team: "Alpine", drivers: ["Gasly", "Colapinto"], engine: "Mercedes (cust.)", works: false, totalPts: 36, titleProb: 0.1, top3Pct: 0.3, pts2025: 22, testRank: 8, expertRating: 55 },
+      { team: "Racing Bulls", drivers: ["Lawson", "Lindblad"], engine: "Ford (RBPT cust.)", works: false, totalPts: 15, titleProb: 0.1, top3Pct: 0.1, pts2025: 92, testRank: 5, expertRating: 68 },
+      { team: "Aston Martin", drivers: ["Alonso", "Stroll"], engine: "Honda", works: false, totalPts: 5, titleProb: 0.0, top3Pct: 0.0, pts2025: 90, testRank: 10, expertRating: 42 },
+      { team: "Cadillac", drivers: ["Pérez", "Bottas"], engine: "Ferrari (cust.)", works: false, totalPts: 3, titleProb: 0.0, top3Pct: 0.0, pts2025: 0, testRank: 11, expertRating: 30 },
+      { team: "Audi", drivers: ["Hülkenberg", "Bortoleto"], engine: "Audi", works: true, totalPts: 0, titleProb: 0.0, top3Pct: 0.0, pts2025: 68, testRank: 9, expertRating: 48 },
+    ];
+
+    const BOOK_WDC = { "Max Verstappen": 22, "George Russell": 28, "Lando Norris": 16, "Oscar Piastri": 10, "Charles Leclerc": 9, "Lewis Hamilton": 5, "Kimi Antonelli": 4 };
+    const BOOK_WCC = { "Ferrari": 20, "Mercedes": 35, "McLaren": 15, "Red Bull": 18 };
+
+    const mono = "ui-monospace, 'Courier New', monospace";
+    const sans = "system-ui, -apple-system, sans-serif";
+
+    const ProbBar = ({ pct, maxPct, color }) => (
+      <div style={{ flex: 1, height: 10, background: "rgba(255,255,255,0.05)", borderRadius: 5, overflow: "hidden" }}>
+        <div style={{
+          height: "100%", borderRadius: 5,
+          width: `${Math.max((pct / Math.max(maxPct, 0.1)) * 100, pct > 0 ? 2 : 0)}%`,
+          background: `linear-gradient(90deg, ${color}, ${color}77)`,
+          transition: "width 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+        }} />
+      </div>
+    );
+
+    const StatPill = ({ value, label }) => (
+      <div style={{ textAlign: "center", minWidth: 0 }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: "#cbd5e1", lineHeight: 1.2 }}>{value}</div>
+        <div style={{ fontSize: 7, fontFamily: mono, color: "#475569", letterSpacing: 0.5, textTransform: "uppercase" }}>{label}</div>
+      </div>
+    );
+
+    function App() {
+      const [tab, setTab] = useState("wdc");
+      const [model, setModel] = useState("ensemble");
+      const [expanded, setExpanded] = useState(null);
+
+      const getProb = (d) => model === "mc" ? d.mcWin : model === "bayesian" ? d.bayesWin : d.ensemble;
+      const maxWDC = Math.max(...WDC_DATA.map(d => getProb(d)));
+      const maxWCC = Math.max(...WCC_DATA.map(c => c.titleProb));
+      const maxPts = Math.max(...WCC_DATA.map(c => c.totalPts));
+
+      const renderPodiumCard = (item, i, isWCC) => {
+        const col = TEAM_COLORS[item.team];
+        const prob = isWCC ? item.titleProb : getProb(item);
+        const name = isWCC ? item.team : item.driver;
+        const sub = isWCC ? `${item.drivers.join(" & ")} · ${item.engine}` : item.team;
+        const bookPct = isWCC ? BOOK_WCC[item.team] : BOOK_WDC[item.driver];
+        const pts = isWCC ? item.totalPts : item.avgPts;
+        const medals = ["🥇", "🥈", "🥉"];
+
+        return (
+          <div key={name} style={{
+            background: `linear-gradient(135deg, rgba(255,255,255,0.025) 0%, ${col}0a 100%)`,
+            borderLeft: `3px solid ${col}`,
+            border: `1px solid ${col}22`, borderLeftWidth: 3,
+            borderRadius: 10, padding: "12px 14px",
+            animation: `fadeUp 0.4s ease ${i * 0.08}s both`,
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 9, fontFamily: mono, color: "#64748b", marginBottom: 3 }}>
+                  {medals[i]} {i === 0 ? "PREDICTED CHAMPION" : i === 1 ? "2ND" : "3RD"}
+                </div>
+                <div style={{ fontSize: 18, fontWeight: 700, display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                  <span style={{ width: 10, height: 10, borderRadius: isWCC ? 3 : "50%", background: col, flexShrink: 0 }} />
+                  <span>{name}</span>
+                  {item.works && (
+                    <span style={{ fontSize: 8, color: col, fontFamily: mono, background: `${col}15`, border: `1px solid ${col}22`, borderRadius: 3, padding: "1px 5px", flexShrink: 0 }}>WORKS</span>
+                  )}
+                </div>
+                <div style={{ fontSize: 10, color: isWCC ? "#64748b" : col, fontFamily: mono, marginTop: 1 }}>{sub}</div>
+              </div>
+              <div style={{ textAlign: "right", flexShrink: 0, marginLeft: 10 }}>
+                <div style={{ fontSize: 24, fontWeight: 700, color: col, lineHeight: 1 }}>{prob}%</div>
+                <div style={{ fontSize: 8, fontFamily: mono, color: "#475569" }}>TITLE PROB</div>
+              </div>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+              <ProbBar pct={prob} maxPct={isWCC ? maxWCC : maxWDC} color={col} />
+              <span style={{ fontSize: 11, fontFamily: mono, color: "#64748b", minWidth: 52, textAlign: "right" }}>{pts} pts</span>
+            </div>
+
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              {isWCC ? (
+                <>
+                  <StatPill value={`${item.top3Pct}%`} label="Top 3" />
+                  <StatPill value={`#${item.testRank}`} label="Test" />
+                  <StatPill value={item.expertRating} label="Expert" />
+                  <StatPill value={item.pts2025} label="2025 Pts" />
+                  {bookPct && <StatPill value={`${bookPct}%`} label="Books" />}
+                </>
+              ) : (
+                <>
+                  <StatPill value={item.elo} label="Elo" />
+                  <StatPill value={`${item.podiumPct}%`} label="Podium" />
+                  <StatPill value={item.avgPts} label="Exp Pts" />
+                  {bookPct && <StatPill value={`${bookPct}%`} label="Books" />}
+                </>
+              )}
+            </div>
+          </div>
+        );
+      };
+
+      const renderListRow = (item, i, isWCC) => {
+        const col = TEAM_COLORS[isWCC ? item.team : item.team] || "#555";
+        const prob = isWCC ? item.titleProb : getProb(item);
+        const name = isWCC ? item.team : item.driver;
+        const sub = isWCC ? item.drivers.join(" · ") : item.team;
+        const pts = isWCC ? item.totalPts : item.avgPts;
+        const isExp = expanded === name;
+        const rank = isWCC ? i + 4 : i + 1;
+
+        return (
+          <div key={name}
+            onClick={() => setExpanded(isExp ? null : name)}
+            style={{
+              padding: "10px 12px", borderBottom: "1px solid rgba(255,255,255,0.025)",
+              cursor: "pointer", transition: "background 0.1s",
+              animation: `fadeUp 0.3s ease ${i * 0.03}s both`,
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.02)"}
+            onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: rank <= 3 ? "#e53e3e" : "#334155", fontFamily: mono, width: 22, textAlign: "right", flexShrink: 0 }}>{rank}</span>
+              <span style={{ width: 8, height: 8, borderRadius: isWCC ? 2 : "50%", background: col, flexShrink: 0 }} />
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
+                  {item.works && <span style={{ color: col, fontSize: 9 }}>★</span>}
+                </div>
+                <div style={{ fontSize: 10, color: "#475569", fontFamily: mono }}>{sub}</div>
+              </div>
+              <span style={{ fontSize: 14, fontWeight: 700, fontFamily: mono, color: prob > 1 ? "#e2e8f0" : "#475569", flexShrink: 0 }}>
+                {prob > 0 ? `${prob}%` : "—"}
+              </span>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5, paddingLeft: 38 }}>
+              <ProbBar pct={isWCC ? pts : prob} maxPct={isWCC ? maxPts : maxWDC} color={col} />
+              <span style={{ fontSize: 10, fontFamily: mono, color: "#475569", minWidth: 48, textAlign: "right" }}>{pts} pts</span>
+            </div>
+
+            {isExp && (
+              <div style={{
+                paddingLeft: 38, marginTop: 8, display: "flex", gap: 12, flexWrap: "wrap",
+                paddingTop: 8, borderTop: "1px solid rgba(255,255,255,0.04)",
+                animation: "fadeUp 0.2s ease both",
+              }}>
+                {isWCC ? (
+                  <>
+                    <StatPill value={`${item.top3Pct}%`} label="Top 3" />
+                    <StatPill value={`#${item.testRank}`} label="Test" />
+                    <StatPill value={item.expertRating} label="Expert" />
+                    <StatPill value={item.pts2025} label="2025 Pts" />
+                    <StatPill value={item.engine} label="Engine" />
+                  </>
+                ) : (
+                  <>
+                    <StatPill value={item.elo} label="Elo" />
+                    <StatPill value={`${item.podiumPct}%`} label="Podium" />
+                    <StatPill value={`${item.mcWin}%`} label="MC Win" />
+                    <StatPill value={`${item.bayesWin}%`} label="Bayes" />
+                    <StatPill value={`${item.ensemble}%`} label="Ensemble" />
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      };
+
+      return (
+        <div style={{ minHeight: "100vh", background: "#0a0a0f", color: "#e2e8f0", fontFamily: sans }}>
+          {/* Header */}
+          <div style={{ padding: "20px 16px 14px", borderBottom: "1px solid rgba(255,255,255,0.04)", background: "linear-gradient(180deg, rgba(229,62,62,0.06) 0%, transparent 100%)" }}>
+            <div style={{ maxWidth: 640, margin: "0 auto" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 2 }}>
+                <div style={{ width: 5, height: 5, borderRadius: "50%", background: "#e53e3e", animation: "pulse 2s infinite" }} />
+                <span style={{ fontSize: 9, fontFamily: mono, color: "#e53e3e", letterSpacing: 2.5 }}>ML PREDICTION MODEL</span>
+              </div>
+              <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.3 }}>F1 2026 Championship Predictor</h1>
+              <p style={{ fontSize: 10, color: "#334155", fontFamily: mono, marginTop: 2 }}>10k Monte Carlo · Elo Ratings · Bayesian Ensemble · Pre-season Data</p>
+            </div>
+          </div>
+
+          <div style={{ padding: "12px 16px 40px", maxWidth: 640, margin: "0 auto" }}>
+
+            {/* Tabs */}
+            <div style={{ display: "flex", gap: 3, background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: 3, marginBottom: 16 }}>
+              {[{ key: "wdc", label: "🏆 Drivers" }, { key: "wcc", label: "🏗 Constructors" }].map(t => (
+                <button key={t.key} onClick={() => { setTab(t.key); setExpanded(null); }} style={{
+                  flex: 1, padding: "9px 0", borderRadius: 6,
+                  background: tab === t.key ? "rgba(229,62,62,0.12)" : "transparent",
+                  border: tab === t.key ? "1px solid rgba(229,62,62,0.2)" : "1px solid transparent",
+                  color: tab === t.key ? "#fff" : "#475569", fontSize: 13, fontWeight: tab === t.key ? 700 : 400,
+                  fontFamily: sans, transition: "all 0.15s",
+                }}>{t.label}</button>
+              ))}
+            </div>
+
+            {/* ═══ CONSTRUCTORS ═══ */}
+            {tab === "wcc" && (
+              <div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+                  {WCC_DATA.slice(0, 3).map((c, i) => renderPodiumCard(c, i, true))}
+                </div>
+                <div style={{ background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.04)", borderRadius: 10, overflow: "hidden" }}>
+                  <div style={{ padding: "8px 12px", borderBottom: "1px solid rgba(255,255,255,0.04)", background: "rgba(255,255,255,0.02)" }}>
+                    <span style={{ fontSize: 9, fontFamily: mono, color: "#475569", letterSpacing: 1 }}>REMAINING CONSTRUCTORS · TAP FOR DETAILS</span>
+                  </div>
+                  {WCC_DATA.slice(3).map((c, i) => renderListRow(c, i, true))}
+                </div>
+                <div style={{ marginTop: 16, padding: 14, borderRadius: 10, background: "rgba(39,244,210,0.04)", border: "1px solid rgba(39,244,210,0.10)" }}>
+                  <div style={{ fontSize: 9, fontFamily: mono, color: "#27F4D2", letterSpacing: 1.5, marginBottom: 6 }}>KEY INSIGHT</div>
+                  <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.7 }}>
+                    <strong style={{ color: "#e2e8f0" }}>Ferrari edges Mercedes for WCC</strong> despite Mercedes having the stronger lead driver. Ferrari's edge: two championship-caliber drivers (Hamilton ~319 + Leclerc ~318) both scoring heavily, vs Mercedes' gap between Russell (~338) and rookie Antonelli (~264). The works team bonus also lifts factory teams over customers, dropping reigning champion McLaren to 3rd.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ═══ DRIVERS ═══ */}
+            {tab === "wdc" && (
+              <div>
+                <div style={{ display: "flex", gap: 4, marginBottom: 14, justifyContent: "flex-end" }}>
+                  {["ensemble", "mc", "bayesian"].map(m => (
+                    <button key={m} onClick={() => { setModel(m); setExpanded(null); }} style={{
+                      padding: "4px 10px", borderRadius: 5,
+                      background: model === m ? "rgba(229,62,62,0.15)" : "rgba(255,255,255,0.03)",
+                      border: model === m ? "1px solid rgba(229,62,62,0.25)" : "1px solid rgba(255,255,255,0.05)",
+                      color: model === m ? "#fff" : "#475569", fontSize: 10, fontFamily: mono,
+                    }}>{m === "mc" ? "Monte Carlo" : m === "bayesian" ? "Bayesian" : "Ensemble"}</button>
+                  ))}
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+                  {WDC_DATA.slice(0, 3).map((d, i) => renderPodiumCard(d, i, false))}
+                </div>
+
+                <div style={{ background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.04)", borderRadius: 10, overflow: "hidden" }}>
+                  <div style={{ padding: "8px 12px", borderBottom: "1px solid rgba(255,255,255,0.04)", background: "rgba(255,255,255,0.02)" }}>
+                    <span style={{ fontSize: 9, fontFamily: mono, color: "#475569", letterSpacing: 1 }}>FULL GRID · {model.toUpperCase()} · TAP FOR DETAILS</span>
+                  </div>
+                  {WDC_DATA.slice(3).map((d, i) => renderListRow(d, i + 3, false))}
+                </div>
+
+                {/* Model vs Bookmaker */}
+                <div style={{ marginTop: 16, background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.04)", borderRadius: 10, padding: 14 }}>
+                  <div style={{ fontSize: 9, fontFamily: mono, color: "#e53e3e", letterSpacing: 1.5, marginBottom: 10 }}>MODEL vs BOOKMAKER ODDS</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {Object.entries(BOOK_WDC).map(([driver, bookPct]) => {
+                      const d = WDC_DATA.find(x => x.driver === driver);
+                      const modelPct = d ? d.ensemble : 0;
+                      const edge = modelPct - bookPct;
+                      const col = d ? TEAM_COLORS[d.team] : "#666";
+                      return (
+                        <div key={driver}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 3 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                              <span style={{ width: 6, height: 6, borderRadius: "50%", background: col }} />
+                              <span style={{ fontSize: 12, fontWeight: 500, color: "#e2e8f0" }}>{driver.split(" ").pop()}</span>
+                            </div>
+                            <span style={{
+                              fontSize: 11, fontWeight: 700, fontFamily: mono,
+                              color: edge > 2 ? "#22c55e" : edge < -2 ? "#ef4444" : "#64748b",
+                            }}>{edge > 0 ? "+" : ""}{edge.toFixed(1)}%</span>
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            <div style={{ flex: 1, position: "relative", height: 12, background: "rgba(255,255,255,0.04)", borderRadius: 4, overflow: "hidden" }}>
+                              <div style={{ position: "absolute", height: "100%", width: `${modelPct / 35 * 100}%`, background: `${col}66`, borderRadius: 4, top: 0, left: 0 }} />
+                              <div style={{ position: "absolute", height: "100%", width: 2, left: `${bookPct / 35 * 100}%`, background: "#fff", opacity: 0.5, top: 0 }} />
+                            </div>
+                            <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                              <span style={{ fontSize: 10, fontFamily: mono, color: "#94a3b8" }}>{modelPct.toFixed(1)}%</span>
+                              <span style={{ fontSize: 10, fontFamily: mono, color: "#475569" }}>{bookPct}%</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div style={{ fontSize: 8, color: "#334155", fontFamily: mono, marginTop: 8 }}>
+                    Bar = model prob · White line = bookmaker · Right values: model / books
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Footer */}
+            <div style={{ marginTop: 24, padding: 12, borderTop: "1px solid rgba(255,255,255,0.03)" }}>
+              <div style={{ fontSize: 9, color: "#1e293b", fontFamily: mono, lineHeight: 1.7, textAlign: "center" }}>
+                GBM · Logistic · Bayesian Ensemble · Monte Carlo (10k sims) · LOO RMSE 1.98<br />
+                Data: 2014–2025 hybrid era · Bahrain Test 1 (Feb 2026) · Bookmaker consensus<br />
+                Built with Python + scikit-learn · For analysis purposes only
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById("root"));
+  </script>
+</body>
+</html>
