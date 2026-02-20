@@ -1,182 +1,45 @@
 """
 F1 Historical Race Data (2014-2025)
 ===================================
-Curated dataset covering the hybrid era, which is most relevant for
-predicting 2026 performance under new hybrid PU regulations.
+Hybrid data pipeline:
+  - 2014-2024: Loaded from Kaggle F1 World Championship dataset via kaggle_loader.py
+  - 2025: Hardcoded from Fox Sports / FIA official standings (not yet in Kaggle)
+  - 2026: Pre-season predictions (grid, testing, bookmaker odds)
 
-Data sources: formula1.com, Wikipedia F1 season articles, StatsF1
+Data source (2014-2024): https://www.kaggle.com/datasets/rohanrao/formula-1-world-championship-1950-2020
 """
 
 import pandas as pd
 import numpy as np
+from pathlib import Path
 
-# ─────────────────────────────────────────────────
-# SEASON-LEVEL RESULTS (Drivers' Championship)
-# ─────────────────────────────────────────────────
+from data.kaggle_loader import (
+    load_driver_season_results,
+    load_constructor_season_results,
+    load_top10_dnf_data,
+    load_qualifying_data,
+)
 
-DRIVER_SEASON_RESULTS = [
-    # 2014 — First turbo-hybrid era
-    {"year": 2014, "driver": "Lewis Hamilton", "team": "Mercedes", "engine": "Mercedes", "position": 1, "points": 384, "wins": 11, "podiums": 16, "poles": 7, "races": 19},
-    {"year": 2014, "driver": "Nico Rosberg", "team": "Mercedes", "engine": "Mercedes", "position": 2, "points": 317, "wins": 5, "podiums": 15, "poles": 11, "races": 19},
-    {"year": 2014, "driver": "Daniel Ricciardo", "team": "Red Bull", "engine": "Renault", "position": 3, "points": 238, "wins": 3, "podiums": 8, "poles": 1, "races": 19},
-    {"year": 2014, "driver": "Valtteri Bottas", "team": "Williams", "engine": "Mercedes", "position": 4, "points": 186, "wins": 0, "podiums": 6, "poles": 0, "races": 19},
-    {"year": 2014, "driver": "Sebastian Vettel", "team": "Red Bull", "engine": "Renault", "position": 5, "points": 167, "wins": 0, "podiums": 4, "poles": 0, "races": 19},
-    {"year": 2014, "driver": "Fernando Alonso", "team": "Ferrari", "engine": "Ferrari", "position": 6, "points": 161, "wins": 0, "podiums": 2, "poles": 0, "races": 19},
-    {"year": 2014, "driver": "Felipe Massa", "team": "Williams", "engine": "Mercedes", "position": 7, "points": 134, "wins": 0, "podiums": 5, "poles": 1, "races": 19},
-    {"year": 2014, "driver": "Jenson Button", "team": "McLaren", "engine": "Mercedes", "position": 8, "points": 126, "wins": 0, "podiums": 1, "poles": 0, "races": 19},
-    {"year": 2014, "driver": "Nico Hulkenberg", "team": "Force India", "engine": "Mercedes", "position": 9, "points": 96, "wins": 0, "podiums": 0, "poles": 0, "races": 19},
-    {"year": 2014, "driver": "Kevin Magnussen", "team": "McLaren", "engine": "Mercedes", "position": 11, "points": 55, "wins": 0, "podiums": 1, "poles": 0, "races": 19},
 
-    # 2015
-    {"year": 2015, "driver": "Lewis Hamilton", "team": "Mercedes", "engine": "Mercedes", "position": 1, "points": 381, "wins": 10, "podiums": 17, "poles": 11, "races": 19},
-    {"year": 2015, "driver": "Nico Rosberg", "team": "Mercedes", "engine": "Mercedes", "position": 2, "points": 322, "wins": 6, "podiums": 15, "poles": 7, "races": 19},
-    {"year": 2015, "driver": "Sebastian Vettel", "team": "Ferrari", "engine": "Ferrari", "position": 3, "points": 278, "wins": 3, "podiums": 13, "poles": 1, "races": 19},
-    {"year": 2015, "driver": "Kimi Raikkonen", "team": "Ferrari", "engine": "Ferrari", "position": 4, "points": 150, "wins": 0, "podiums": 3, "poles": 0, "races": 19},
-    {"year": 2015, "driver": "Valtteri Bottas", "team": "Williams", "engine": "Mercedes", "position": 5, "points": 136, "wins": 0, "podiums": 2, "poles": 0, "races": 19},
-    {"year": 2015, "driver": "Felipe Massa", "team": "Williams", "engine": "Mercedes", "position": 6, "points": 121, "wins": 0, "podiums": 2, "poles": 0, "races": 19},
-    {"year": 2015, "driver": "Daniel Ricciardo", "team": "Red Bull", "engine": "Renault", "position": 8, "points": 92, "wins": 0, "podiums": 2, "poles": 0, "races": 19},
-    {"year": 2015, "driver": "Max Verstappen", "team": "Toro Rosso", "engine": "Renault", "position": 12, "points": 49, "wins": 0, "podiums": 0, "poles": 0, "races": 19},
-    {"year": 2015, "driver": "Carlos Sainz", "team": "Toro Rosso", "engine": "Renault", "position": 15, "points": 18, "wins": 0, "podiums": 0, "poles": 0, "races": 19},
+# ═════════════════════════════════════════════════
+# 2014-2024: LOADED FROM KAGGLE
+# ═════════════════════════════════════════════════
 
-    # 2016
-    {"year": 2016, "driver": "Nico Rosberg", "team": "Mercedes", "engine": "Mercedes", "position": 1, "points": 385, "wins": 9, "podiums": 16, "poles": 8, "races": 21},
-    {"year": 2016, "driver": "Lewis Hamilton", "team": "Mercedes", "engine": "Mercedes", "position": 2, "points": 380, "wins": 10, "podiums": 17, "poles": 12, "races": 21},
-    {"year": 2016, "driver": "Daniel Ricciardo", "team": "Red Bull", "engine": "TAG Heuer", "position": 3, "points": 256, "wins": 1, "podiums": 8, "poles": 1, "races": 21},
-    {"year": 2016, "driver": "Max Verstappen", "team": "Red Bull", "engine": "TAG Heuer", "position": 5, "points": 204, "wins": 1, "podiums": 7, "poles": 0, "races": 21},
-    {"year": 2016, "driver": "Sebastian Vettel", "team": "Ferrari", "engine": "Ferrari", "position": 4, "points": 212, "wins": 0, "podiums": 7, "poles": 1, "races": 21},
-    {"year": 2016, "driver": "Kimi Raikkonen", "team": "Ferrari", "engine": "Ferrari", "position": 6, "points": 186, "wins": 0, "podiums": 4, "poles": 0, "races": 21},
-    {"year": 2016, "driver": "Valtteri Bottas", "team": "Williams", "engine": "Mercedes", "position": 8, "points": 85, "wins": 0, "podiums": 1, "poles": 0, "races": 21},
-    {"year": 2016, "driver": "Carlos Sainz", "team": "Toro Rosso", "engine": "Ferrari", "position": 12, "points": 46, "wins": 0, "podiums": 0, "poles": 0, "races": 21},
-    {"year": 2016, "driver": "Fernando Alonso", "team": "McLaren", "engine": "Honda", "position": 10, "points": 54, "wins": 0, "podiums": 0, "poles": 0, "races": 21},
+_KAGGLE_DIR = Path(__file__).parent / "kaggle_f1"
 
-    # 2017 — Wider cars, more downforce
-    {"year": 2017, "driver": "Lewis Hamilton", "team": "Mercedes", "engine": "Mercedes", "position": 1, "points": 363, "wins": 9, "podiums": 13, "poles": 11, "races": 20},
-    {"year": 2017, "driver": "Sebastian Vettel", "team": "Ferrari", "engine": "Ferrari", "position": 2, "points": 317, "wins": 5, "podiums": 13, "poles": 4, "races": 20},
-    {"year": 2017, "driver": "Valtteri Bottas", "team": "Mercedes", "engine": "Mercedes", "position": 3, "points": 305, "wins": 3, "podiums": 13, "poles": 4, "races": 20},
-    {"year": 2017, "driver": "Daniel Ricciardo", "team": "Red Bull", "engine": "TAG Heuer", "position": 5, "points": 200, "wins": 1, "podiums": 9, "poles": 0, "races": 20},
-    {"year": 2017, "driver": "Max Verstappen", "team": "Red Bull", "engine": "TAG Heuer", "position": 6, "points": 168, "wins": 2, "podiums": 4, "poles": 0, "races": 20},
-    {"year": 2017, "driver": "Kimi Raikkonen", "team": "Ferrari", "engine": "Ferrari", "position": 4, "points": 205, "wins": 0, "podiums": 7, "poles": 1, "races": 20},
-    {"year": 2017, "driver": "Carlos Sainz", "team": "Toro Rosso", "engine": "Renault", "position": 9, "points": 54, "wins": 0, "podiums": 0, "poles": 0, "races": 20},
-    {"year": 2017, "driver": "Esteban Ocon", "team": "Force India", "engine": "Mercedes", "position": 8, "points": 87, "wins": 0, "podiums": 0, "poles": 0, "races": 20},
-    {"year": 2017, "driver": "Fernando Alonso", "team": "McLaren", "engine": "Honda", "position": 15, "points": 17, "wins": 0, "podiums": 0, "poles": 0, "races": 20},
-    {"year": 2017, "driver": "Lance Stroll", "team": "Williams", "engine": "Mercedes", "position": 12, "points": 40, "wins": 0, "podiums": 1, "poles": 0, "races": 20},
+_kaggle_driver_results = load_driver_season_results(_KAGGLE_DIR)
+_kaggle_constructor_results = load_constructor_season_results(_KAGGLE_DIR)
+_kaggle_top10_dnf = load_top10_dnf_data(_KAGGLE_DIR)
+_kaggle_qualifying = load_qualifying_data(_KAGGLE_DIR)
 
-    # 2018
-    {"year": 2018, "driver": "Lewis Hamilton", "team": "Mercedes", "engine": "Mercedes", "position": 1, "points": 408, "wins": 11, "podiums": 17, "poles": 11, "races": 21},
-    {"year": 2018, "driver": "Sebastian Vettel", "team": "Ferrari", "engine": "Ferrari", "position": 2, "points": 320, "wins": 5, "podiums": 12, "poles": 5, "races": 21},
-    {"year": 2018, "driver": "Kimi Raikkonen", "team": "Ferrari", "engine": "Ferrari", "position": 3, "points": 251, "wins": 1, "podiums": 12, "poles": 1, "races": 21},
-    {"year": 2018, "driver": "Max Verstappen", "team": "Red Bull", "engine": "TAG Heuer", "position": 4, "points": 249, "wins": 2, "podiums": 11, "poles": 2, "races": 21},
-    {"year": 2018, "driver": "Valtteri Bottas", "team": "Mercedes", "engine": "Mercedes", "position": 5, "points": 247, "wins": 0, "podiums": 8, "poles": 4, "races": 21},
-    {"year": 2018, "driver": "Daniel Ricciardo", "team": "Red Bull", "engine": "TAG Heuer", "position": 6, "points": 170, "wins": 2, "podiums": 6, "poles": 2, "races": 21},
-    {"year": 2018, "driver": "Carlos Sainz", "team": "Renault", "engine": "Renault", "position": 10, "points": 53, "wins": 0, "podiums": 0, "poles": 0, "races": 21},
-    {"year": 2018, "driver": "Charles Leclerc", "team": "Sauber", "engine": "Ferrari", "position": 13, "points": 39, "wins": 0, "podiums": 0, "poles": 0, "races": 21},
-    {"year": 2018, "driver": "Pierre Gasly", "team": "Toro Rosso", "engine": "Honda", "position": 15, "points": 29, "wins": 0, "podiums": 0, "poles": 0, "races": 21},
-    {"year": 2018, "driver": "Fernando Alonso", "team": "McLaren", "engine": "Renault", "position": 11, "points": 50, "wins": 0, "podiums": 0, "poles": 0, "races": 21},
-    {"year": 2018, "driver": "Esteban Ocon", "team": "Force India", "engine": "Mercedes", "position": 12, "points": 49, "wins": 0, "podiums": 0, "poles": 0, "races": 21},
-    {"year": 2018, "driver": "Lance Stroll", "team": "Williams", "engine": "Mercedes", "position": 18, "points": 6, "wins": 0, "podiums": 0, "poles": 0, "races": 21},
-    {"year": 2018, "driver": "Lando Norris", "team": None, "engine": None, "position": None, "points": 0, "wins": 0, "podiums": 0, "poles": 0, "races": 0},
 
-    # 2019
-    {"year": 2019, "driver": "Lewis Hamilton", "team": "Mercedes", "engine": "Mercedes", "position": 1, "points": 413, "wins": 11, "podiums": 17, "poles": 5, "races": 21},
-    {"year": 2019, "driver": "Valtteri Bottas", "team": "Mercedes", "engine": "Mercedes", "position": 2, "points": 326, "wins": 4, "podiums": 15, "poles": 5, "races": 21},
-    {"year": 2019, "driver": "Max Verstappen", "team": "Red Bull", "engine": "Honda", "position": 3, "points": 278, "wins": 3, "podiums": 9, "poles": 2, "races": 21},
-    {"year": 2019, "driver": "Charles Leclerc", "team": "Ferrari", "engine": "Ferrari", "position": 4, "points": 264, "wins": 2, "podiums": 10, "poles": 7, "races": 21},
-    {"year": 2019, "driver": "Sebastian Vettel", "team": "Ferrari", "engine": "Ferrari", "position": 5, "points": 240, "wins": 1, "podiums": 9, "poles": 2, "races": 21},
-    {"year": 2019, "driver": "Carlos Sainz", "team": "McLaren", "engine": "Renault", "position": 6, "points": 96, "wins": 0, "podiums": 1, "poles": 0, "races": 21},
-    {"year": 2019, "driver": "Pierre Gasly", "team": "Red Bull", "engine": "Honda", "position": 7, "points": 95, "wins": 0, "podiums": 2, "poles": 0, "races": 21},
-    {"year": 2019, "driver": "Alex Albon", "team": "Red Bull", "engine": "Honda", "position": 8, "points": 92, "wins": 0, "podiums": 0, "poles": 0, "races": 21},
-    {"year": 2019, "driver": "Lando Norris", "team": "McLaren", "engine": "Renault", "position": 11, "points": 49, "wins": 0, "podiums": 0, "poles": 0, "races": 21},
-    {"year": 2019, "driver": "George Russell", "team": "Williams", "engine": "Mercedes", "position": 20, "points": 0, "wins": 0, "podiums": 0, "poles": 0, "races": 21},
-    {"year": 2019, "driver": "Lance Stroll", "team": "Racing Point", "engine": "Mercedes", "position": 15, "points": 21, "wins": 0, "podiums": 0, "poles": 0, "races": 21},
-    {"year": 2019, "driver": "Nico Hulkenberg", "team": "Renault", "engine": "Renault", "position": 14, "points": 37, "wins": 0, "podiums": 0, "poles": 0, "races": 21},
+# ═════════════════════════════════════════════════
+# 2025: HARDCODED (not yet in Kaggle dataset)
+# Source: Fox Sports / FIA official standings
+# ═════════════════════════════════════════════════
 
-    # 2020 (17 races, COVID season)
-    {"year": 2020, "driver": "Lewis Hamilton", "team": "Mercedes", "engine": "Mercedes", "position": 1, "points": 347, "wins": 11, "podiums": 14, "poles": 10, "races": 17},
-    {"year": 2020, "driver": "Valtteri Bottas", "team": "Mercedes", "engine": "Mercedes", "position": 2, "points": 223, "wins": 2, "podiums": 11, "poles": 5, "races": 17},
-    {"year": 2020, "driver": "Max Verstappen", "team": "Red Bull", "engine": "Honda", "position": 3, "points": 214, "wins": 2, "podiums": 11, "poles": 1, "races": 17},
-    {"year": 2020, "driver": "Sergio Perez", "team": "Racing Point", "engine": "Mercedes", "position": 4, "points": 125, "wins": 1, "podiums": 3, "poles": 0, "races": 17},
-    {"year": 2020, "driver": "Daniel Ricciardo", "team": "Renault", "engine": "Renault", "position": 5, "points": 119, "wins": 0, "podiums": 2, "poles": 0, "races": 17},
-    {"year": 2020, "driver": "Carlos Sainz", "team": "McLaren", "engine": "Renault", "position": 6, "points": 105, "wins": 0, "podiums": 2, "poles": 0, "races": 17},
-    {"year": 2020, "driver": "Charles Leclerc", "team": "Ferrari", "engine": "Ferrari", "position": 8, "points": 98, "wins": 0, "podiums": 2, "poles": 2, "races": 17},
-    {"year": 2020, "driver": "Lando Norris", "team": "McLaren", "engine": "Renault", "position": 9, "points": 97, "wins": 0, "podiums": 1, "poles": 0, "races": 17},
-    {"year": 2020, "driver": "Alex Albon", "team": "Red Bull", "engine": "Honda", "position": 7, "points": 105, "wins": 0, "podiums": 2, "poles": 0, "races": 17},
-    {"year": 2020, "driver": "Pierre Gasly", "team": "AlphaTauri", "engine": "Honda", "position": 10, "points": 75, "wins": 1, "podiums": 1, "poles": 0, "races": 17},
-    {"year": 2020, "driver": "Lance Stroll", "team": "Racing Point", "engine": "Mercedes", "position": 11, "points": 75, "wins": 0, "podiums": 2, "poles": 1, "races": 17},
-    {"year": 2020, "driver": "Esteban Ocon", "team": "Renault", "engine": "Renault", "position": 12, "points": 62, "wins": 0, "podiums": 1, "poles": 0, "races": 17},
-    {"year": 2020, "driver": "George Russell", "team": "Williams", "engine": "Mercedes", "position": 18, "points": 3, "wins": 0, "podiums": 0, "poles": 0, "races": 17},
-    {"year": 2020, "driver": "Sebastian Vettel", "team": "Ferrari", "engine": "Ferrari", "position": 13, "points": 33, "wins": 0, "podiums": 1, "poles": 0, "races": 17},
-
-    # 2021 — epic Verstappen vs Hamilton
-    {"year": 2021, "driver": "Max Verstappen", "team": "Red Bull", "engine": "Honda", "position": 1, "points": 395.5, "wins": 10, "podiums": 18, "poles": 10, "races": 22},
-    {"year": 2021, "driver": "Lewis Hamilton", "team": "Mercedes", "engine": "Mercedes", "position": 2, "points": 387.5, "wins": 8, "podiums": 17, "poles": 5, "races": 22},
-    {"year": 2021, "driver": "Valtteri Bottas", "team": "Mercedes", "engine": "Mercedes", "position": 3, "points": 226, "wins": 1, "podiums": 11, "poles": 5, "races": 22},
-    {"year": 2021, "driver": "Sergio Perez", "team": "Red Bull", "engine": "Honda", "position": 4, "points": 190, "wins": 1, "podiums": 5, "poles": 0, "races": 22},
-    {"year": 2021, "driver": "Carlos Sainz", "team": "Ferrari", "engine": "Ferrari", "position": 5, "points": 164.5, "wins": 0, "podiums": 4, "poles": 0, "races": 22},
-    {"year": 2021, "driver": "Lando Norris", "team": "McLaren", "engine": "Mercedes", "position": 6, "points": 160, "wins": 0, "podiums": 4, "poles": 1, "races": 22},
-    {"year": 2021, "driver": "Charles Leclerc", "team": "Ferrari", "engine": "Ferrari", "position": 7, "points": 159, "wins": 0, "podiums": 4, "poles": 2, "races": 22},
-    {"year": 2021, "driver": "Daniel Ricciardo", "team": "McLaren", "engine": "Mercedes", "position": 8, "points": 115, "wins": 1, "podiums": 1, "poles": 0, "races": 22},
-    {"year": 2021, "driver": "Pierre Gasly", "team": "AlphaTauri", "engine": "Honda", "position": 9, "points": 110, "wins": 0, "podiums": 0, "poles": 0, "races": 22},
-    {"year": 2021, "driver": "Fernando Alonso", "team": "Alpine", "engine": "Renault", "position": 10, "points": 81, "wins": 0, "podiums": 1, "poles": 0, "races": 22},
-    {"year": 2021, "driver": "Esteban Ocon", "team": "Alpine", "engine": "Renault", "position": 11, "points": 74, "wins": 1, "podiums": 1, "poles": 0, "races": 22},
-    {"year": 2021, "driver": "George Russell", "team": "Williams", "engine": "Mercedes", "position": 15, "points": 16, "wins": 0, "podiums": 1, "poles": 0, "races": 22},
-    {"year": 2021, "driver": "Lance Stroll", "team": "Aston Martin", "engine": "Mercedes", "position": 13, "points": 34, "wins": 0, "podiums": 0, "poles": 0, "races": 22},
-
-    # 2022 — Ground effect era
-    {"year": 2022, "driver": "Max Verstappen", "team": "Red Bull", "engine": "RBPT", "position": 1, "points": 454, "wins": 15, "podiums": 17, "poles": 7, "races": 22},
-    {"year": 2022, "driver": "Charles Leclerc", "team": "Ferrari", "engine": "Ferrari", "position": 2, "points": 308, "wins": 3, "podiums": 11, "poles": 9, "races": 22},
-    {"year": 2022, "driver": "Sergio Perez", "team": "Red Bull", "engine": "RBPT", "position": 3, "points": 305, "wins": 2, "podiums": 11, "poles": 1, "races": 22},
-    {"year": 2022, "driver": "Carlos Sainz", "team": "Ferrari", "engine": "Ferrari", "position": 5, "points": 246, "wins": 1, "podiums": 9, "poles": 3, "races": 22},
-    {"year": 2022, "driver": "George Russell", "team": "Mercedes", "engine": "Mercedes", "position": 4, "points": 275, "wins": 1, "podiums": 8, "poles": 1, "races": 22},
-    {"year": 2022, "driver": "Lewis Hamilton", "team": "Mercedes", "engine": "Mercedes", "position": 6, "points": 240, "wins": 0, "podiums": 9, "poles": 0, "races": 22},
-    {"year": 2022, "driver": "Lando Norris", "team": "McLaren", "engine": "Mercedes", "position": 7, "points": 122, "wins": 0, "podiums": 0, "poles": 0, "races": 22},
-    {"year": 2022, "driver": "Esteban Ocon", "team": "Alpine", "engine": "Renault", "position": 8, "points": 92, "wins": 0, "podiums": 0, "poles": 0, "races": 22},
-    {"year": 2022, "driver": "Fernando Alonso", "team": "Alpine", "engine": "Renault", "position": 9, "points": 81, "wins": 0, "podiums": 0, "poles": 0, "races": 22},
-    {"year": 2022, "driver": "Valtteri Bottas", "team": "Alfa Romeo", "engine": "Ferrari", "position": 10, "points": 49, "wins": 0, "podiums": 0, "poles": 0, "races": 22},
-    {"year": 2022, "driver": "Alex Albon", "team": "Williams", "engine": "Mercedes", "position": 19, "points": 4, "wins": 0, "podiums": 0, "poles": 0, "races": 22},
-    {"year": 2022, "driver": "Oscar Piastri", "team": None, "engine": None, "position": None, "points": 0, "wins": 0, "podiums": 0, "poles": 0, "races": 0},
-    {"year": 2022, "driver": "Pierre Gasly", "team": "AlphaTauri", "engine": "RBPT", "position": 14, "points": 23, "wins": 0, "podiums": 0, "poles": 0, "races": 22},
-    {"year": 2022, "driver": "Lance Stroll", "team": "Aston Martin", "engine": "Mercedes", "position": 15, "points": 18, "wins": 0, "podiums": 0, "poles": 0, "races": 22},
-    {"year": 2022, "driver": "Nico Hulkenberg", "team": None, "engine": None, "position": None, "points": 0, "wins": 0, "podiums": 0, "poles": 0, "races": 0},
-
-    # 2023
-    {"year": 2023, "driver": "Max Verstappen", "team": "Red Bull", "engine": "Honda RBPT", "position": 1, "points": 575, "wins": 19, "podiums": 21, "poles": 12, "races": 22},
-    {"year": 2023, "driver": "Sergio Perez", "team": "Red Bull", "engine": "Honda RBPT", "position": 2, "points": 285, "wins": 2, "podiums": 8, "poles": 2, "races": 22},
-    {"year": 2023, "driver": "Lewis Hamilton", "team": "Mercedes", "engine": "Mercedes", "position": 3, "points": 234, "wins": 0, "podiums": 8, "poles": 0, "races": 22},
-    {"year": 2023, "driver": "Fernando Alonso", "team": "Aston Martin", "engine": "Mercedes", "position": 4, "points": 206, "wins": 0, "podiums": 8, "poles": 0, "races": 22},
-    {"year": 2023, "driver": "Charles Leclerc", "team": "Ferrari", "engine": "Ferrari", "position": 5, "points": 206, "wins": 0, "podiums": 5, "poles": 3, "races": 22},
-    {"year": 2023, "driver": "Lando Norris", "team": "McLaren", "engine": "Mercedes", "position": 6, "points": 205, "wins": 0, "podiums": 7, "poles": 1, "races": 22},
-    {"year": 2023, "driver": "Carlos Sainz", "team": "Ferrari", "engine": "Ferrari", "position": 7, "points": 200, "wins": 1, "podiums": 5, "poles": 3, "races": 22},
-    {"year": 2023, "driver": "George Russell", "team": "Mercedes", "engine": "Mercedes", "position": 8, "points": 175, "wins": 0, "podiums": 2, "poles": 1, "races": 22},
-    {"year": 2023, "driver": "Oscar Piastri", "team": "McLaren", "engine": "Mercedes", "position": 9, "points": 97, "wins": 1, "podiums": 2, "poles": 0, "races": 22},
-    {"year": 2023, "driver": "Pierre Gasly", "team": "Alpine", "engine": "Renault", "position": 11, "points": 62, "wins": 0, "podiums": 0, "poles": 0, "races": 22},
-    {"year": 2023, "driver": "Alex Albon", "team": "Williams", "engine": "Mercedes", "position": 12, "points": 27, "wins": 0, "podiums": 0, "poles": 0, "races": 22},
-    {"year": 2023, "driver": "Esteban Ocon", "team": "Alpine", "engine": "Renault", "position": 12, "points": 58, "wins": 0, "podiums": 0, "poles": 0, "races": 22},
-    {"year": 2023, "driver": "Lance Stroll", "team": "Aston Martin", "engine": "Mercedes", "position": 10, "points": 74, "wins": 0, "podiums": 1, "poles": 0, "races": 22},
-    {"year": 2023, "driver": "Nico Hulkenberg", "team": "Haas", "engine": "Ferrari", "position": 14, "points": 9, "wins": 0, "podiums": 0, "poles": 0, "races": 22},
-    {"year": 2023, "driver": "Valtteri Bottas", "team": "Alfa Romeo", "engine": "Ferrari", "position": 16, "points": 10, "wins": 0, "podiums": 0, "poles": 0, "races": 22},
-
-    # 2024
-    {"year": 2024, "driver": "Max Verstappen", "team": "Red Bull", "engine": "Honda RBPT", "position": 1, "points": 437, "wins": 9, "podiums": 14, "poles": 10, "races": 24},
-    {"year": 2024, "driver": "Lando Norris", "team": "McLaren", "engine": "Mercedes", "position": 2, "points": 374, "wins": 4, "podiums": 15, "poles": 8, "races": 24},
-    {"year": 2024, "driver": "Charles Leclerc", "team": "Ferrari", "engine": "Ferrari", "position": 3, "points": 356, "wins": 3, "podiums": 14, "poles": 4, "races": 24},
-    {"year": 2024, "driver": "Oscar Piastri", "team": "McLaren", "engine": "Mercedes", "position": 4, "points": 292, "wins": 2, "podiums": 9, "poles": 0, "races": 24},
-    {"year": 2024, "driver": "Carlos Sainz", "team": "Ferrari", "engine": "Ferrari", "position": 5, "points": 290, "wins": 2, "podiums": 10, "poles": 2, "races": 24},
-    {"year": 2024, "driver": "George Russell", "team": "Mercedes", "engine": "Mercedes", "position": 6, "points": 245, "wins": 2, "podiums": 7, "poles": 2, "races": 24},
-    {"year": 2024, "driver": "Lewis Hamilton", "team": "Mercedes", "engine": "Mercedes", "position": 7, "points": 223, "wins": 2, "podiums": 5, "poles": 1, "races": 24},
-    {"year": 2024, "driver": "Sergio Perez", "team": "Red Bull", "engine": "Honda RBPT", "position": 8, "points": 152, "wins": 0, "podiums": 4, "poles": 0, "races": 24},
-    {"year": 2024, "driver": "Fernando Alonso", "team": "Aston Martin", "engine": "Mercedes", "position": 9, "points": 70, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
-    {"year": 2024, "driver": "Pierre Gasly", "team": "Alpine", "engine": "Renault", "position": 10, "points": 42, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
-    {"year": 2024, "driver": "Nico Hulkenberg", "team": "Haas", "engine": "Ferrari", "position": 11, "points": 41, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
-    {"year": 2024, "driver": "Alex Albon", "team": "Williams", "engine": "Mercedes", "position": 14, "points": 12, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
-    {"year": 2024, "driver": "Esteban Ocon", "team": "Alpine", "engine": "Renault", "position": 14, "points": 23, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
-    {"year": 2024, "driver": "Lance Stroll", "team": "Aston Martin", "engine": "Mercedes", "position": 13, "points": 24, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
-    {"year": 2024, "driver": "Valtteri Bottas", "team": "Sauber", "engine": "Ferrari", "position": 22, "points": 0, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
-    {"year": 2024, "driver": "Oliver Bearman", "team": "Haas", "engine": "Ferrari", "position": None, "points": 7, "wins": 0, "podiums": 0, "poles": 0, "races": 3},
-
+_DRIVER_SEASON_2025 = [
     # 2025 — Norris WDC (423 pts, +2 over Verstappen), McLaren WCC
-    # Sources: formula1.com final standings, RacingNews365, Wikipedia
-    # Tsunoda promoted to Red Bull from round 3, replacing Lawson who was demoted to Racing Bulls
-    # Doohan replaced by Colapinto at Alpine from round 7
     {"year": 2025, "driver": "Lando Norris", "team": "McLaren", "engine": "Mercedes", "position": 1, "points": 423, "wins": 7, "podiums": 18, "poles": 7, "races": 24},
     {"year": 2025, "driver": "Max Verstappen", "team": "Red Bull", "engine": "Honda RBPT", "position": 2, "points": 421, "wins": 8, "podiums": 15, "poles": 8, "races": 24},
     {"year": 2025, "driver": "Oscar Piastri", "team": "McLaren", "engine": "Mercedes", "position": 3, "points": 410, "wins": 7, "podiums": 16, "poles": 6, "races": 24},
@@ -202,82 +65,7 @@ DRIVER_SEASON_RESULTS = [
     {"year": 2025, "driver": "Valtteri Bottas", "team": None, "engine": None, "position": None, "points": 0, "wins": 0, "podiums": 0, "poles": 0, "races": 0},
 ]
 
-# ─────────────────────────────────────────────────
-# CONSTRUCTOR SEASON RESULTS
-# ─────────────────────────────────────────────────
-
-CONSTRUCTOR_SEASON_RESULTS = [
-    # 2014
-    {"year": 2014, "team": "Mercedes", "engine": "Mercedes", "position": 1, "points": 701, "wins": 16},
-    {"year": 2014, "team": "Red Bull", "engine": "Renault", "position": 2, "points": 405, "wins": 3},
-    {"year": 2014, "team": "Williams", "engine": "Mercedes", "position": 3, "points": 320, "wins": 0},
-    {"year": 2014, "team": "Ferrari", "engine": "Ferrari", "position": 4, "points": 216, "wins": 0},
-    {"year": 2014, "team": "McLaren", "engine": "Mercedes", "position": 5, "points": 181, "wins": 0},
-    # 2015
-    {"year": 2015, "team": "Mercedes", "engine": "Mercedes", "position": 1, "points": 703, "wins": 16},
-    {"year": 2015, "team": "Ferrari", "engine": "Ferrari", "position": 2, "points": 428, "wins": 3},
-    {"year": 2015, "team": "Williams", "engine": "Mercedes", "position": 3, "points": 257, "wins": 0},
-    {"year": 2015, "team": "Red Bull", "engine": "Renault", "position": 4, "points": 187, "wins": 0},
-    {"year": 2015, "team": "McLaren", "engine": "Honda", "position": 9, "points": 27, "wins": 0},
-    # 2016
-    {"year": 2016, "team": "Mercedes", "engine": "Mercedes", "position": 1, "points": 765, "wins": 19},
-    {"year": 2016, "team": "Red Bull", "engine": "TAG Heuer", "position": 2, "points": 468, "wins": 2},
-    {"year": 2016, "team": "Ferrari", "engine": "Ferrari", "position": 3, "points": 398, "wins": 0},
-    {"year": 2016, "team": "Williams", "engine": "Mercedes", "position": 5, "points": 138, "wins": 0},
-    {"year": 2016, "team": "McLaren", "engine": "Honda", "position": 6, "points": 76, "wins": 0},
-    # 2017
-    {"year": 2017, "team": "Mercedes", "engine": "Mercedes", "position": 1, "points": 668, "wins": 12},
-    {"year": 2017, "team": "Ferrari", "engine": "Ferrari", "position": 2, "points": 522, "wins": 5},
-    {"year": 2017, "team": "Red Bull", "engine": "TAG Heuer", "position": 3, "points": 368, "wins": 3},
-    {"year": 2017, "team": "Williams", "engine": "Mercedes", "position": 5, "points": 83, "wins": 0},
-    {"year": 2017, "team": "McLaren", "engine": "Honda", "position": 9, "points": 30, "wins": 0},
-    # 2018
-    {"year": 2018, "team": "Mercedes", "engine": "Mercedes", "position": 1, "points": 655, "wins": 11},
-    {"year": 2018, "team": "Ferrari", "engine": "Ferrari", "position": 2, "points": 571, "wins": 6},
-    {"year": 2018, "team": "Red Bull", "engine": "TAG Heuer", "position": 3, "points": 419, "wins": 4},
-    {"year": 2018, "team": "McLaren", "engine": "Renault", "position": 6, "points": 62, "wins": 0},
-    {"year": 2018, "team": "Williams", "engine": "Mercedes", "position": 10, "points": 7, "wins": 0},
-    # 2019
-    {"year": 2019, "team": "Mercedes", "engine": "Mercedes", "position": 1, "points": 739, "wins": 15},
-    {"year": 2019, "team": "Ferrari", "engine": "Ferrari", "position": 2, "points": 504, "wins": 3},
-    {"year": 2019, "team": "Red Bull", "engine": "Honda", "position": 3, "points": 417, "wins": 3},
-    {"year": 2019, "team": "McLaren", "engine": "Renault", "position": 4, "points": 145, "wins": 0},
-    {"year": 2019, "team": "Williams", "engine": "Mercedes", "position": 10, "points": 1, "wins": 0},
-    # 2020
-    {"year": 2020, "team": "Mercedes", "engine": "Mercedes", "position": 1, "points": 573, "wins": 13},
-    {"year": 2020, "team": "Red Bull", "engine": "Honda", "position": 2, "points": 319, "wins": 2},
-    {"year": 2020, "team": "McLaren", "engine": "Renault", "position": 3, "points": 202, "wins": 0},
-    {"year": 2020, "team": "Ferrari", "engine": "Ferrari", "position": 6, "points": 131, "wins": 0},
-    {"year": 2020, "team": "Williams", "engine": "Mercedes", "position": 10, "points": 0, "wins": 0},
-    # 2021
-    {"year": 2021, "team": "Mercedes", "engine": "Mercedes", "position": 1, "points": 613.5, "wins": 9},
-    {"year": 2021, "team": "Red Bull", "engine": "Honda", "position": 2, "points": 585.5, "wins": 11},
-    {"year": 2021, "team": "Ferrari", "engine": "Ferrari", "position": 3, "points": 323.5, "wins": 0},
-    {"year": 2021, "team": "McLaren", "engine": "Mercedes", "position": 4, "points": 275, "wins": 1},
-    {"year": 2021, "team": "Aston Martin", "engine": "Mercedes", "position": 7, "points": 77, "wins": 0},
-    {"year": 2021, "team": "Williams", "engine": "Mercedes", "position": 8, "points": 23, "wins": 0},
-    # 2022
-    {"year": 2022, "team": "Red Bull", "engine": "RBPT", "position": 1, "points": 759, "wins": 17},
-    {"year": 2022, "team": "Ferrari", "engine": "Ferrari", "position": 2, "points": 554, "wins": 4},
-    {"year": 2022, "team": "Mercedes", "engine": "Mercedes", "position": 3, "points": 515, "wins": 1},
-    {"year": 2022, "team": "McLaren", "engine": "Mercedes", "position": 5, "points": 159, "wins": 0},
-    {"year": 2022, "team": "Aston Martin", "engine": "Mercedes", "position": 7, "points": 55, "wins": 0},
-    {"year": 2022, "team": "Williams", "engine": "Mercedes", "position": 10, "points": 8, "wins": 0},
-    # 2023
-    {"year": 2023, "team": "Red Bull", "engine": "Honda RBPT", "position": 1, "points": 860, "wins": 21},
-    {"year": 2023, "team": "Mercedes", "engine": "Mercedes", "position": 2, "points": 409, "wins": 0},
-    {"year": 2023, "team": "Ferrari", "engine": "Ferrari", "position": 3, "points": 406, "wins": 1},
-    {"year": 2023, "team": "McLaren", "engine": "Mercedes", "position": 4, "points": 302, "wins": 1},
-    {"year": 2023, "team": "Aston Martin", "engine": "Mercedes", "position": 5, "points": 280, "wins": 0},
-    {"year": 2023, "team": "Williams", "engine": "Mercedes", "position": 7, "points": 28, "wins": 0},
-    # 2024
-    {"year": 2024, "team": "McLaren", "engine": "Mercedes", "position": 1, "points": 666, "wins": 6},
-    {"year": 2024, "team": "Ferrari", "engine": "Ferrari", "position": 2, "points": 652, "wins": 5},
-    {"year": 2024, "team": "Red Bull", "engine": "Honda RBPT", "position": 3, "points": 589, "wins": 9},
-    {"year": 2024, "team": "Mercedes", "engine": "Mercedes", "position": 4, "points": 468, "wins": 4},
-    {"year": 2024, "team": "Aston Martin", "engine": "Mercedes", "position": 5, "points": 94, "wins": 0},
-    {"year": 2024, "team": "Williams", "engine": "Mercedes", "position": 9, "points": 17, "wins": 0},
-    # 2025 — McLaren WCC (back-to-back), source: formula1.com
+_CONSTRUCTOR_SEASON_2025 = [
     {"year": 2025, "team": "McLaren", "engine": "Mercedes", "position": 1, "points": 833, "wins": 14},
     {"year": 2025, "team": "Mercedes", "engine": "Mercedes", "position": 2, "points": 469, "wins": 2},
     {"year": 2025, "team": "Red Bull", "engine": "Honda RBPT", "position": 3, "points": 454, "wins": 8},
@@ -290,85 +78,7 @@ CONSTRUCTOR_SEASON_RESULTS = [
     {"year": 2025, "team": "Alpine", "engine": "Renault", "position": 10, "points": 22, "wins": 0},
 ]
 
-
-# ─────────────────────────────────────────────────
-# TOP-10 FINISH RATE & DNF RATE DATA
-# ─────────────────────────────────────────────────
-# top_10_rate: fraction of races where driver finished P1-P10 (scored points)
-# dnf_rate: fraction of races where driver did not finish
-# 2025 data: verified from Fox Sports/FIA. 2014-2024: estimated from PPR/position.
-TOP10_DNF_DATA = {
-    (2014, "Lewis Hamilton"): (0.97, 0.08), (2014, "Nico Rosberg"): (0.89, 0.08),
-    (2014, "Daniel Ricciardo"): (0.85, 0.08), (2014, "Valtteri Bottas"): (0.79, 0.10),
-    (2014, "Sebastian Vettel"): (0.74, 0.10), (2014, "Fernando Alonso"): (0.72, 0.10),
-    (2014, "Felipe Massa"): (0.65, 0.10), (2014, "Jenson Button"): (0.63, 0.10),
-    (2014, "Nico Hulkenberg"): (0.54, 0.10), (2014, "Kevin Magnussen"): (0.39, 0.13),
-    (2015, "Lewis Hamilton"): (0.97, 0.08), (2015, "Nico Rosberg"): (0.89, 0.08),
-    (2015, "Sebastian Vettel"): (0.88, 0.08), (2015, "Kimi Raikkonen"): (0.69, 0.10),
-    (2015, "Valtteri Bottas"): (0.66, 0.10), (2015, "Felipe Massa"): (0.62, 0.10),
-    (2015, "Daniel Ricciardo"): (0.52, 0.10), (2015, "Max Verstappen"): (0.36, 0.10),
-    (2015, "Carlos Sainz"): (0.19, 0.10),
-    (2016, "Nico Rosberg"): (0.96, 0.08), (2016, "Lewis Hamilton"): (0.96, 0.08),
-    (2016, "Daniel Ricciardo"): (0.84, 0.08), (2016, "Sebastian Vettel"): (0.80, 0.10),
-    (2016, "Max Verstappen"): (0.79, 0.10), (2016, "Kimi Raikkonen"): (0.74, 0.10),
-    (2016, "Valtteri Bottas"): (0.47, 0.10), (2016, "Fernando Alonso"): (0.36, 0.22),
-    (2016, "Carlos Sainz"): (0.32, 0.10),
-    (2017, "Lewis Hamilton"): (0.95, 0.06), (2017, "Sebastian Vettel"): (0.89, 0.06),
-    (2017, "Valtteri Bottas"): (0.89, 0.06), (2017, "Kimi Raikkonen"): (0.81, 0.08),
-    (2017, "Daniel Ricciardo"): (0.80, 0.14), (2017, "Max Verstappen"): (0.72, 0.14),
-    (2017, "Esteban Ocon"): (0.49, 0.08), (2017, "Carlos Sainz"): (0.37, 0.08),
-    (2017, "Lance Stroll"): (0.30, 0.11), (2017, "Fernando Alonso"): (0.18, 0.20),
-    (2018, "Lewis Hamilton"): (0.96, 0.06), (2018, "Sebastian Vettel"): (0.89, 0.06),
-    (2018, "Kimi Raikkonen"): (0.84, 0.06), (2018, "Max Verstappen"): (0.84, 0.14),
-    (2018, "Valtteri Bottas"): (0.84, 0.08), (2018, "Daniel Ricciardo"): (0.70, 0.14),
-    (2018, "Carlos Sainz"): (0.35, 0.08), (2018, "Fernando Alonso"): (0.34, 0.08),
-    (2018, "Esteban Ocon"): (0.33, 0.08), (2018, "Charles Leclerc"): (0.29, 0.08),
-    (2018, "Pierre Gasly"): (0.24, 0.08), (2018, "Lance Stroll"): (0.09, 0.16),
-    (2018, "Lando Norris"): (0.05, 0.08),
-    (2019, "Lewis Hamilton"): (0.96, 0.06), (2019, "Valtteri Bottas"): (0.89, 0.06),
-    (2019, "Max Verstappen"): (0.86, 0.06), (2019, "Charles Leclerc"): (0.85, 0.08),
-    (2019, "Sebastian Vettel"): (0.83, 0.08), (2019, "Carlos Sainz"): (0.51, 0.08),
-    (2019, "Pierre Gasly"): (0.50, 0.08), (2019, "Alex Albon"): (0.49, 0.08),
-    (2019, "Lando Norris"): (0.33, 0.08), (2019, "Nico Hulkenberg"): (0.28, 0.08),
-    (2019, "Lance Stroll"): (0.20, 0.11), (2019, "George Russell"): (0.05, 0.12),
-    (2020, "Lewis Hamilton"): (0.97, 0.04), (2020, "Valtteri Bottas"): (0.86, 0.04),
-    (2020, "Max Verstappen"): (0.85, 0.04), (2020, "Sergio Perez"): (0.67, 0.06),
-    (2020, "Daniel Ricciardo"): (0.65, 0.06), (2020, "Carlos Sainz"): (0.61, 0.06),
-    (2020, "Alex Albon"): (0.61, 0.06), (2020, "Charles Leclerc"): (0.59, 0.06),
-    (2020, "Lando Norris"): (0.58, 0.06), (2020, "Pierre Gasly"): (0.49, 0.06),
-    (2020, "Lance Stroll"): (0.49, 0.09), (2020, "Esteban Ocon"): (0.44, 0.06),
-    (2020, "Sebastian Vettel"): (0.29, 0.06), (2020, "George Russell"): (0.08, 0.06),
-    (2021, "Max Verstappen"): (0.90, 0.04), (2021, "Lewis Hamilton"): (0.90, 0.04),
-    (2021, "Valtteri Bottas"): (0.81, 0.04), (2021, "Sergio Perez"): (0.73, 0.06),
-    (2021, "Carlos Sainz"): (0.67, 0.06), (2021, "Lando Norris"): (0.66, 0.06),
-    (2021, "Charles Leclerc"): (0.66, 0.06), (2021, "Daniel Ricciardo"): (0.55, 0.06),
-    (2021, "Pierre Gasly"): (0.53, 0.06), (2021, "Fernando Alonso"): (0.45, 0.06),
-    (2021, "Esteban Ocon"): (0.42, 0.06), (2021, "Lance Stroll"): (0.25, 0.09),
-    (2021, "George Russell"): (0.16, 0.06),
-    (2022, "Max Verstappen"): (0.96, 0.05), (2022, "Charles Leclerc"): (0.88, 0.10),
-    (2022, "Sergio Perez"): (0.88, 0.05), (2022, "George Russell"): (0.85, 0.07),
-    (2022, "Carlos Sainz"): (0.82, 0.12), (2022, "Lewis Hamilton"): (0.82, 0.07),
-    (2022, "Lando Norris"): (0.57, 0.07), (2022, "Esteban Ocon"): (0.48, 0.07),
-    (2022, "Fernando Alonso"): (0.45, 0.07), (2022, "Valtteri Bottas"): (0.32, 0.07),
-    (2022, "Pierre Gasly"): (0.20, 0.07), (2022, "Lance Stroll"): (0.17, 0.10),
-    (2022, "Alex Albon"): (0.08, 0.07), (2022, "Oscar Piastri"): (0.05, 0.07),
-    (2022, "Nico Hulkenberg"): (0.05, 0.07),
-    (2023, "Max Verstappen"): (0.98, 0.05), (2023, "Sergio Perez"): (0.86, 0.05),
-    (2023, "Lewis Hamilton"): (0.81, 0.05), (2023, "Fernando Alonso"): (0.77, 0.07),
-    (2023, "Charles Leclerc"): (0.77, 0.07), (2023, "Lando Norris"): (0.77, 0.07),
-    (2023, "Carlos Sainz"): (0.75, 0.07), (2023, "George Russell"): (0.70, 0.07),
-    (2023, "Oscar Piastri"): (0.49, 0.07), (2023, "Lance Stroll"): (0.42, 0.10),
-    (2023, "Pierre Gasly"): (0.38, 0.07), (2023, "Alex Albon"): (0.22, 0.07),
-    (2023, "Esteban Ocon"): (0.36, 0.07), (2023, "Nico Hulkenberg"): (0.11, 0.07),
-    (2023, "Valtteri Bottas"): (0.12, 0.07),
-    (2024, "Max Verstappen"): (0.95, 0.05), (2024, "Lando Norris"): (0.89, 0.05),
-    (2024, "Charles Leclerc"): (0.88, 0.05), (2024, "Oscar Piastri"): (0.84, 0.07),
-    (2024, "Carlos Sainz"): (0.84, 0.07), (2024, "George Russell"): (0.80, 0.07),
-    (2024, "Lewis Hamilton"): (0.76, 0.07), (2024, "Sergio Perez"): (0.62, 0.07),
-    (2024, "Fernando Alonso"): (0.39, 0.07), (2024, "Pierre Gasly"): (0.28, 0.07),
-    (2024, "Nico Hulkenberg"): (0.27, 0.07), (2024, "Lance Stroll"): (0.20, 0.10),
-    (2024, "Alex Albon"): (0.12, 0.07), (2024, "Esteban Ocon"): (0.19, 0.07),
-    (2024, "Valtteri Bottas"): (0.05, 0.07), (2024, "Oliver Bearman"): (0.33, 0.07),
+_TOP10_DNF_2025 = {
     (2025, "Lando Norris"): (0.83, 0.08), (2025, "Max Verstappen"): (0.96, 0.04),
     (2025, "Oscar Piastri"): (0.92, 0.04), (2025, "George Russell"): (0.96, 0.00),
     (2025, "Charles Leclerc"): (0.79, 0.08), (2025, "Lewis Hamilton"): (0.75, 0.08),
@@ -383,11 +93,49 @@ TOP10_DNF_DATA = {
     (2025, "Valtteri Bottas"): (0.00, 0.00),
 }
 
+_QUALIFYING_2025 = {
+    (2025, "Lando Norris"):       {"avg_quali_pos": 3.0, "q3_rate": 0.96, "front_row_rate": 0.42},
+    (2025, "Max Verstappen"):     {"avg_quali_pos": 2.5, "q3_rate": 1.00, "front_row_rate": 0.58},
+    (2025, "Oscar Piastri"):      {"avg_quali_pos": 3.5, "q3_rate": 0.96, "front_row_rate": 0.33},
+    (2025, "George Russell"):     {"avg_quali_pos": 3.0, "q3_rate": 0.96, "front_row_rate": 0.38},
+    (2025, "Charles Leclerc"):    {"avg_quali_pos": 5.0, "q3_rate": 0.88, "front_row_rate": 0.08},
+    (2025, "Lewis Hamilton"):     {"avg_quali_pos": 12.0, "q3_rate": 0.33, "front_row_rate": 0.00},
+    (2025, "Kimi Antonelli"):     {"avg_quali_pos": 6.5, "q3_rate": 0.79, "front_row_rate": 0.08},
+    (2025, "Isack Hadjar"):       {"avg_quali_pos": 9.5, "q3_rate": 0.46, "front_row_rate": 0.00},
+    (2025, "Carlos Sainz"):       {"avg_quali_pos": 9.0, "q3_rate": 0.50, "front_row_rate": 0.00},
+    (2025, "Fernando Alonso"):    {"avg_quali_pos": 10.0, "q3_rate": 0.38, "front_row_rate": 0.00},
+    (2025, "Nico Hulkenberg"):    {"avg_quali_pos": 9.5, "q3_rate": 0.42, "front_row_rate": 0.00},
+    (2025, "Oliver Bearman"):     {"avg_quali_pos": 11.0, "q3_rate": 0.29, "front_row_rate": 0.00},
+    (2025, "Liam Lawson"):        {"avg_quali_pos": 12.0, "q3_rate": 0.18, "front_row_rate": 0.00},
+    (2025, "Esteban Ocon"):       {"avg_quali_pos": 11.5, "q3_rate": 0.25, "front_row_rate": 0.00},
+    (2025, "Lance Stroll"):       {"avg_quali_pos": 12.5, "q3_rate": 0.17, "front_row_rate": 0.00},
+    (2025, "Yuki Tsunoda"):       {"avg_quali_pos": 10.5, "q3_rate": 0.32, "front_row_rate": 0.00},
+    (2025, "Pierre Gasly"):       {"avg_quali_pos": 12.0, "q3_rate": 0.21, "front_row_rate": 0.00},
+    (2025, "Gabriel Bortoleto"):  {"avg_quali_pos": 11.5, "q3_rate": 0.21, "front_row_rate": 0.00},
+    (2025, "Franco Colapinto"):   {"avg_quali_pos": 15.0, "q3_rate": 0.06, "front_row_rate": 0.00},
+    (2025, "Jack Doohan"):        {"avg_quali_pos": 16.0, "q3_rate": 0.00, "front_row_rate": 0.00},
+    (2025, "Alex Albon"):         {"avg_quali_pos": 13.0, "q3_rate": 0.13, "front_row_rate": 0.00},
+    (2025, "Sergio Perez"):       {"avg_quali_pos": 20.0, "q3_rate": 0.00, "front_row_rate": 0.00},
+    (2025, "Valtteri Bottas"):    {"avg_quali_pos": 20.0, "q3_rate": 0.00, "front_row_rate": 0.00},
+}
+
+
+# ═════════════════════════════════════════════════
+# COMBINED DATASETS (2014-2025)
+# ═════════════════════════════════════════════════
+
+DRIVER_SEASON_RESULTS = _kaggle_driver_results + _DRIVER_SEASON_2025
+CONSTRUCTOR_SEASON_RESULTS = _kaggle_constructor_results + _CONSTRUCTOR_SEASON_2025
+TOP10_DNF_DATA = {**_kaggle_top10_dnf, **_TOP10_DNF_2025}
+QUALIFYING_DATA = {**_kaggle_qualifying, **_QUALIFYING_2025}
+
+
+# ═════════════════════════════════════════════════
+# UTILITY FUNCTIONS
+# ═════════════════════════════════════════════════
 
 def get_driver_df():
     """Return driver season results as a DataFrame with qualifying data."""
-    from data.qualifying_data import QUALIFYING_DATA
-    
     df = pd.DataFrame(DRIVER_SEASON_RESULTS)
     df["points_per_race"] = df.apply(
         lambda r: r["points"] / r["races"] if r["races"] > 0 else 0, axis=1
@@ -398,7 +146,7 @@ def get_driver_df():
     df["podium_rate"] = df.apply(
         lambda r: r["podiums"] / r["races"] if r["races"] > 0 else 0, axis=1
     )
-    
+
     # Merge qualifying data
     df["avg_quali_pos"] = df.apply(
         lambda r: QUALIFYING_DATA.get((r["year"], r["driver"]), {}).get("avg_quali_pos", 15.0), axis=1
@@ -409,7 +157,7 @@ def get_driver_df():
     df["front_row_rate"] = df.apply(
         lambda r: QUALIFYING_DATA.get((r["year"], r["driver"]), {}).get("front_row_rate", 0.0), axis=1
     )
-    
+
     # Merge top-10 finish rate and DNF rate
     df["top_10_rate"] = df.apply(
         lambda r: TOP10_DNF_DATA.get((r["year"], r["driver"]), (0.30, 0.08))[0], axis=1
@@ -426,9 +174,9 @@ def get_constructor_df():
     return df
 
 
-# ─────────────────────────────────────────────────
+# ═════════════════════════════════════════════════
 # 2026 GRID & PRE-SEASON DATA
-# ─────────────────────────────────────────────────
+# ═════════════════════════════════════════════════
 
 GRID_2026 = [
     {"driver": "Lando Norris", "team": "McLaren", "engine": "Mercedes"},
@@ -455,7 +203,6 @@ GRID_2026 = [
     {"driver": "Valtteri Bottas", "team": "Cadillac", "engine": "Ferrari (customer)"},
 ]
 
-# Pre-season testing rankings (from Bahrain Test 1, Feb 2026)
 PRESEASON_TESTING_2026 = {
     "Mercedes": {"rank": 1, "fastest_time": 93.669, "laps": 350, "reliability_score": 85, "expert_rating": 95},
     "Ferrari": {"rank": 2, "fastest_time": 94.1, "laps": 420, "reliability_score": 95, "expert_rating": 92},
@@ -470,7 +217,6 @@ PRESEASON_TESTING_2026 = {
     "Cadillac": {"rank": 11, "fastest_time": 98.0, "laps": 200, "reliability_score": 55, "expert_rating": 30},
 }
 
-# Bookmaker odds (converted to implied probabilities, from late Jan 2026)
 BOOKMAKER_ODDS_DRIVERS_2026 = {
     "George Russell": 0.28,
     "Max Verstappen": 0.22,

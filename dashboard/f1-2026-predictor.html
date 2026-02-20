@@ -31,46 +31,67 @@
     };
 
     const WDC_DATA = [
-      { driver: "Max Verstappen", team: "Red Bull", elo: 1747, mcWin: 34.4, bayesWin: 31.1, ensemble: 32.8, avgPts: 320, podiumPct: 78.0, works: true },
-      { driver: "Lando Norris", team: "McLaren", elo: 1593, mcWin: 16.5, bayesWin: 26.6, ensemble: 21.6, avgPts: 288, podiumPct: 64.0, works: false },
-      { driver: "George Russell", team: "Mercedes", elo: 1531, mcWin: 20.0, bayesWin: 8.8, ensemble: 14.4, avgPts: 297, podiumPct: 72.0, works: true },
-      { driver: "Charles Leclerc", team: "Ferrari", elo: 1577, mcWin: 18.9, bayesWin: 4.3, ensemble: 11.6, avgPts: 293, podiumPct: 70.0, works: true },
-      { driver: "Oscar Piastri", team: "McLaren", elo: 1573, mcWin: 2.9, bayesWin: 19.4, ensemble: 11.1, avgPts: 228, podiumPct: 42.0, works: false },
-      { driver: "Lewis Hamilton", team: "Ferrari", elo: 1653, mcWin: 7.0, bayesWin: 1.7, ensemble: 4.3, avgPts: 255, podiumPct: 52.0, works: true },
-      { driver: "Carlos Sainz", team: "Williams", elo: 1540, mcWin: 0.0, bayesWin: 2.0, ensemble: 1.0, avgPts: 142, podiumPct: 8.0, works: false },
-      { driver: "Kimi Antonelli", team: "Mercedes", elo: 1508, mcWin: 0.3, bayesWin: 1.3, ensemble: 0.8, avgPts: 185, podiumPct: 20.0, works: true },
-      { driver: "Isack Hadjar", team: "Red Bull", elo: 1496, mcWin: 0.0, bayesWin: 0.6, ensemble: 0.3, avgPts: 75, podiumPct: 2.0, works: true },
-      { driver: "Alex Albon", team: "Williams", elo: 1452, mcWin: 0.0, bayesWin: 0.7, ensemble: 0.3, avgPts: 73, podiumPct: 1.0, works: false },
-      { driver: "Pierre Gasly", team: "Alpine", elo: 1466, mcWin: 0.0, bayesWin: 0.3, ensemble: 0.1, avgPts: 51, podiumPct: 0, works: false },
-      { driver: "Esteban Ocon", team: "Haas", elo: 1450, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 49, podiumPct: 0, works: false },
-      { driver: "Oliver Bearman", team: "Haas", elo: 1492, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 32, podiumPct: 0, works: false },
-      { driver: "Sergio Pérez", team: "Cadillac", elo: 1501, mcWin: 0.0, bayesWin: 0.5, ensemble: 0.3, avgPts: 26, podiumPct: 0, works: false },
-      { driver: "Franco Colapinto", team: "Alpine", elo: 1479, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 24, podiumPct: 0, works: false },
-      { driver: "Liam Lawson", team: "Racing Bulls", elo: 1492, mcWin: 0.0, bayesWin: 0.4, ensemble: 0.2, avgPts: 22, podiumPct: 0, works: false },
-      { driver: "Arvid Lindblad", team: "Racing Bulls", elo: 1500, mcWin: 0.0, bayesWin: 0.3, ensemble: 0.2, avgPts: 22, podiumPct: 0, works: false },
-      { driver: "Lance Stroll", team: "Aston Martin", elo: 1454, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 14, podiumPct: 0, works: false },
-      { driver: "Fernando Alonso", team: "Aston Martin", elo: 1458, mcWin: 0.0, bayesWin: 0.4, ensemble: 0.2, avgPts: 12, podiumPct: 0, works: false },
-      { driver: "Valtteri Bottas", team: "Cadillac", elo: 1468, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 7, podiumPct: 0, works: false },
-      { driver: "Nico Hülkenberg", team: "Audi", elo: 1375, mcWin: 0.0, bayesWin: 0.4, ensemble: 0.2, avgPts: 6, podiumPct: 0, works: true },
+      { driver: "Max Verstappen", team: "Red Bull", elo: 1710, mcWin: 37.8, bayesWin: 31.8, ensemble: 34.8, avgPts: 325, podiumPct: 78.0, works: true },
+      { driver: "Lando Norris", team: "McLaren", elo: 1565, mcWin: 18.3, bayesWin: 27.8, ensemble: 23.0, avgPts: 293, podiumPct: 64.0, works: false },
+      { driver: "George Russell", team: "Mercedes", elo: 1503, mcWin: 17.0, bayesWin: 8.3, ensemble: 12.7, avgPts: 291, podiumPct: 72.0, works: true },
+      { driver: "Oscar Piastri", team: "McLaren", elo: 1548, mcWin: 3.2, bayesWin: 20.3, ensemble: 11.8, avgPts: 232, podiumPct: 42.0, works: false },
+      { driver: "Charles Leclerc", team: "Ferrari", elo: 1544, mcWin: 16.1, bayesWin: 3.7, ensemble: 9.9, avgPts: 287, podiumPct: 70.0, works: true },
+      { driver: "Lewis Hamilton", team: "Ferrari", elo: 1614, mcWin: 7.3, bayesWin: 0.9, ensemble: 4.1, avgPts: 258, podiumPct: 52.0, works: true },
+      { driver: "Carlos Sainz", team: "Williams", elo: 1512, mcWin: 0.0, bayesWin: 1.8, ensemble: 0.9, avgPts: 137, podiumPct: 8.0, works: false },
+      { driver: "Kimi Antonelli", team: "Mercedes", elo: 1495, mcWin: 0.4, bayesWin: 1.1, ensemble: 0.8, avgPts: 189, podiumPct: 20.0, works: true },
+      { driver: "Isack Hadjar", team: "Red Bull", elo: 1496, mcWin: 0.0, bayesWin: 0.6, ensemble: 0.3, avgPts: 76, podiumPct: 2.0, works: true },
+      { driver: "Alex Albon", team: "Williams", elo: 1429, mcWin: 0.0, bayesWin: 0.6, ensemble: 0.3, avgPts: 65, podiumPct: 1.0, works: false },
+      { driver: "Pierre Gasly", team: "Alpine", elo: 1466, mcWin: 0.0, bayesWin: 0.3, ensemble: 0.1, avgPts: 50, podiumPct: 0, works: false },
+      { driver: "Esteban Ocon", team: "Haas", elo: 1450, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 45, podiumPct: 0, works: false },
+      { driver: "Oliver Bearman", team: "Haas", elo: 1492, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 38, podiumPct: 0, works: false },
+      { driver: "Sergio Pérez", team: "Cadillac", elo: 1501, mcWin: 0.0, bayesWin: 0.5, ensemble: 0.3, avgPts: 23, podiumPct: 0, works: false },
+      { driver: "Franco Colapinto", team: "Alpine", elo: 1479, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 25, podiumPct: 0, works: false },
+      { driver: "Liam Lawson", team: "Racing Bulls", elo: 1492, mcWin: 0.0, bayesWin: 0.4, ensemble: 0.2, avgPts: 23, podiumPct: 0, works: false },
+      { driver: "Arvid Lindblad", team: "Racing Bulls", elo: 1500, mcWin: 0.0, bayesWin: 0.3, ensemble: 0.2, avgPts: 23, podiumPct: 0, works: false },
+      { driver: "Lance Stroll", team: "Aston Martin", elo: 1454, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 15, podiumPct: 0, works: false },
+      { driver: "Fernando Alonso", team: "Aston Martin", elo: 1458, mcWin: 0.0, bayesWin: 0.4, ensemble: 0.2, avgPts: 13, podiumPct: 0, works: false },
+      { driver: "Valtteri Bottas", team: "Cadillac", elo: 1468, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 6, podiumPct: 0, works: false },
+      { driver: "Nico Hülkenberg", team: "Audi", elo: 1375, mcWin: 0.0, bayesWin: 0.4, ensemble: 0.2, avgPts: 7, podiumPct: 0, works: true },
       { driver: "Gabriel Bortoleto", team: "Audi", elo: 1481, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 3, podiumPct: 0, works: true },
     ];
 
     const WCC_DATA = [
-      { team: "Ferrari", drivers: ["Leclerc", "Hamilton"], engine: "Ferrari", works: true, totalPts: 548, titleProb: 30.0, top3Pct: 85.0, pts2025: 398, testRank: 2, expertRating: 92 },
-      { team: "McLaren", drivers: ["Norris", "Piastri"], engine: "Mercedes (cust.)", works: false, totalPts: 516, titleProb: 23.0, top3Pct: 80.0, pts2025: 833, testRank: 4, expertRating: 82 },
-      { team: "Mercedes", drivers: ["Russell", "Antonelli"], engine: "Mercedes", works: true, totalPts: 482, titleProb: 22.0, top3Pct: 75.0, pts2025: 469, testRank: 1, expertRating: 95 },
-      { team: "Red Bull", drivers: ["Verstappen", "Hadjar"], engine: "Ford (RBPT)", works: true, totalPts: 395, titleProb: 22.0, top3Pct: 58.0, pts2025: 454, testRank: 3, expertRating: 85 },
-      { team: "Williams", drivers: ["Sainz", "Albon"], engine: "Mercedes (cust.)", works: false, totalPts: 215, titleProb: 1.5, top3Pct: 4.0, pts2025: 137, testRank: 7, expertRating: 58 },
-      { team: "Haas", drivers: ["Ocon", "Bearman"], engine: "Ferrari (cust.)", works: false, totalPts: 81, titleProb: 0.2, top3Pct: 0.4, pts2025: 79, testRank: 6, expertRating: 62 },
+      { team: "Ferrari", drivers: ["Leclerc", "Hamilton"], engine: "Ferrari", works: true, totalPts: 545, titleProb: 30.0, top3Pct: 85.0, pts2025: 398, testRank: 2, expertRating: 92 },
+      { team: "McLaren", drivers: ["Norris", "Piastri"], engine: "Mercedes (cust.)", works: false, totalPts: 525, titleProb: 23.0, top3Pct: 80.0, pts2025: 833, testRank: 4, expertRating: 82 },
+      { team: "Mercedes", drivers: ["Russell", "Antonelli"], engine: "Mercedes", works: true, totalPts: 480, titleProb: 22.0, top3Pct: 75.0, pts2025: 469, testRank: 1, expertRating: 95 },
+      { team: "Red Bull", drivers: ["Verstappen", "Hadjar"], engine: "Ford (RBPT)", works: true, totalPts: 401, titleProb: 22.0, top3Pct: 58.0, pts2025: 454, testRank: 3, expertRating: 85 },
+      { team: "Williams", drivers: ["Sainz", "Albon"], engine: "Mercedes (cust.)", works: false, totalPts: 202, titleProb: 1.5, top3Pct: 4.0, pts2025: 137, testRank: 7, expertRating: 58 },
+      { team: "Haas", drivers: ["Ocon", "Bearman"], engine: "Ferrari (cust.)", works: false, totalPts: 83, titleProb: 0.2, top3Pct: 0.4, pts2025: 79, testRank: 6, expertRating: 62 },
       { team: "Alpine", drivers: ["Gasly", "Colapinto"], engine: "Mercedes (cust.)", works: false, totalPts: 75, titleProb: 0.1, top3Pct: 0.3, pts2025: 22, testRank: 8, expertRating: 55 },
-      { team: "Racing Bulls", drivers: ["Lawson", "Lindblad"], engine: "Ford (RBPT cust.)", works: false, totalPts: 44, titleProb: 0.1, top3Pct: 0.1, pts2025: 92, testRank: 5, expertRating: 68 },
-      { team: "Cadillac", drivers: ["Pérez", "Bottas"], engine: "Ferrari (cust.)", works: false, totalPts: 33, titleProb: 0.0, top3Pct: 0.0, pts2025: 0, testRank: 11, expertRating: 30 },
-      { team: "Aston Martin", drivers: ["Alonso", "Stroll"], engine: "Honda", works: false, totalPts: 26, titleProb: 0.0, top3Pct: 0.0, pts2025: 89, testRank: 10, expertRating: 42 },
-      { team: "Audi", drivers: ["Hülkenberg", "Bortoleto"], engine: "Audi", works: true, totalPts: 9, titleProb: 0.0, top3Pct: 0.0, pts2025: 70, testRank: 9, expertRating: 48 },
+      { team: "Racing Bulls", drivers: ["Lawson", "Lindblad"], engine: "Ford (RBPT cust.)", works: false, totalPts: 46, titleProb: 0.1, top3Pct: 0.1, pts2025: 92, testRank: 5, expertRating: 68 },
+      { team: "Cadillac", drivers: ["Pérez", "Bottas"], engine: "Ferrari (cust.)", works: false, totalPts: 29, titleProb: 0.0, top3Pct: 0.0, pts2025: 0, testRank: 11, expertRating: 30 },
+      { team: "Aston Martin", drivers: ["Alonso", "Stroll"], engine: "Honda", works: false, totalPts: 28, titleProb: 0.0, top3Pct: 0.0, pts2025: 89, testRank: 10, expertRating: 42 },
+      { team: "Audi", drivers: ["Hülkenberg", "Bortoleto"], engine: "Audi", works: true, totalPts: 10, titleProb: 0.0, top3Pct: 0.0, pts2025: 70, testRank: 9, expertRating: 48 },
     ];
 
     const BOOK_WDC = { "Max Verstappen": 22, "George Russell": 28, "Lando Norris": 16, "Oscar Piastri": 10, "Charles Leclerc": 9, "Lewis Hamilton": 5, "Kimi Antonelli": 4 };
     const BOOK_WCC = { "Ferrari": 20, "Mercedes": 35, "McLaren": 15, "Red Bull": 18 };
+
+    // Race-by-race insights from Kaggle dataset (2022-2024, 3-year rolling)
+    // CV = coefficient of variation (stdDev / mean finish). Lower = more consistent.
+    // gridDelta = avg positions gained per race. Positive = gains places on Sunday.
+    const INSIGHTS_DATA = [
+      { driver: "Max Verstappen", team: "Red Bull", avgFinish: 2.8, stdDev: 3.9, cv: 1.39, gridDelta: 0.6, best: 1, worst: 19, races: 68 },
+      { driver: "Lando Norris", team: "McLaren", avgFinish: 6.9, stdDev: 5.2, cv: 0.75, gridDelta: -0.6, best: 1, worst: 20, races: 68 },
+      { driver: "George Russell", team: "Mercedes", avgFinish: 6.6, stdDev: 4.8, cv: 0.73, gridDelta: -0.8, best: 1, worst: 20, races: 68 },
+      { driver: "Oscar Piastri", team: "McLaren", avgFinish: 7.9, stdDev: 5.1, cv: 0.65, gridDelta: -0.5, best: 1, worst: 20, races: 46 },
+      { driver: "Charles Leclerc", team: "Ferrari", avgFinish: 6.0, stdDev: 5.8, cv: 0.97, gridDelta: -1.3, best: 1, worst: 20, races: 68 },
+      { driver: "Lewis Hamilton", team: "Ferrari", avgFinish: 6.4, stdDev: 4.7, cv: 0.73, gridDelta: 0.5, best: 1, worst: 20, races: 68 },
+      { driver: "Carlos Sainz", team: "Williams", avgFinish: 7.0, stdDev: 5.8, cv: 0.83, gridDelta: -1.9, best: 1, worst: 20, races: 67 },
+      { driver: "Fernando Alonso", team: "Aston Martin", avgFinish: 9.2, stdDev: 4.9, cv: 0.53, gridDelta: -0.9, best: 2, worst: 20, races: 68 },
+      { driver: "Pierre Gasly", team: "Alpine", avgFinish: 12.0, stdDev: 4.2, cv: 0.35, gridDelta: -0.6, best: 3, worst: 20, races: 68 },
+      { driver: "Esteban Ocon", team: "Haas", avgFinish: 11.5, stdDev: 4.5, cv: 0.39, gridDelta: -0.3, best: 2, worst: 20, races: 67 },
+      { driver: "Lance Stroll", team: "Aston Martin", avgFinish: 12.2, stdDev: 4.2, cv: 0.34, gridDelta: 0.1, best: 4, worst: 20, races: 68 },
+      { driver: "Alex Albon", team: "Williams", avgFinish: 13.6, stdDev: 3.7, cv: 0.27, gridDelta: -0.5, best: 7, worst: 20, races: 67 },
+      { driver: "Nico Hulkenberg", team: "Audi", avgFinish: 13.1, stdDev: 3.7, cv: 0.28, gridDelta: -2.0, best: 6, worst: 20, races: 48 },
+      { driver: "Sergio Pérez", team: "Cadillac", avgFinish: 7.0, stdDev: 6.0, cv: 0.86, gridDelta: -0.1, best: 1, worst: 20, races: 68 },
+      { driver: "Valtteri Bottas", team: "Cadillac", avgFinish: 14.0, stdDev: 3.9, cv: 0.28, gridDelta: -1.4, best: 5, worst: 20, races: 68 },
+    ];
 
     const mono = "ui-monospace, 'Courier New', monospace";
     const sans = "system-ui, -apple-system, sans-serif";
@@ -97,6 +118,7 @@
       const [tab, setTab] = useState("wdc");
       const [model, setModel] = useState("ensemble");
       const [expanded, setExpanded] = useState(null);
+      const [insightSort, setInsightSort] = useState("consistency");
 
       const getProb = (d) => model === "mc" ? d.mcWin : model === "bayesian" ? d.bayesWin : d.ensemble;
       const maxWDC = Math.max(...WDC_DATA.map(d => getProb(d)));
@@ -236,6 +258,14 @@
         );
       };
 
+      // Insights tab helpers
+      const sortedInsights = insightSort === "consistency"
+        ? [...INSIGHTS_DATA].sort((a, b) => a.cv - b.cv)
+        : [...INSIGHTS_DATA].sort((a, b) => b.gridDelta - a.gridDelta);
+
+      const maxCV = Math.max(...INSIGHTS_DATA.map(d => d.cv));
+      const maxDelta = Math.max(...INSIGHTS_DATA.map(d => Math.abs(d.gridDelta)));
+
       return (
         <div style={{ minHeight: "100vh", background: "#0a0a0f", color: "#e2e8f0", fontFamily: sans }}>
           {/* Header */}
@@ -246,7 +276,7 @@
                 <span style={{ fontSize: 9, fontFamily: mono, color: "#e53e3e", letterSpacing: 2.5 }}>ML PREDICTION MODEL</span>
               </div>
               <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.3 }}>F1 2026 Championship Predictor</h1>
-              <p style={{ fontSize: 10, color: "#334155", fontFamily: mono, marginTop: 2 }}>10k Monte Carlo · Elo Ratings · Bayesian Ensemble · Pre-season Data</p>
+              <p style={{ fontSize: 10, color: "#334155", fontFamily: mono, marginTop: 2 }}>10k Monte Carlo · Elo Ratings · Bayesian Ensemble · Kaggle Dataset</p>
             </div>
           </div>
 
@@ -254,7 +284,7 @@
 
             {/* Tabs */}
             <div style={{ display: "flex", gap: 3, background: "rgba(255,255,255,0.02)", borderRadius: 8, padding: 3, marginBottom: 16 }}>
-              {[{ key: "wdc", label: "🏆 Drivers" }, { key: "wcc", label: "🏗 Constructors" }].map(t => (
+              {[{ key: "wdc", label: "🏆 Drivers" }, { key: "wcc", label: "🏗 Constructors" }, { key: "insights", label: "📊 Insights" }].map(t => (
                 <button key={t.key} onClick={() => { setTab(t.key); setExpanded(null); }} style={{
                   flex: 1, padding: "9px 0", borderRadius: 6,
                   background: tab === t.key ? "rgba(229,62,62,0.12)" : "transparent",
@@ -280,7 +310,7 @@
                 <div style={{ marginTop: 16, padding: 14, borderRadius: 10, background: "rgba(39,244,210,0.04)", border: "1px solid rgba(39,244,210,0.10)" }}>
                   <div style={{ fontSize: 9, fontFamily: mono, color: "#27F4D2", letterSpacing: 1.5, marginBottom: 6 }}>KEY INSIGHT</div>
                   <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.7 }}>
-                    <strong style={{ color: "#e2e8f0" }}>Ferrari edges Mercedes for WCC</strong> despite Mercedes having the stronger lead driver. Ferrari's edge: two championship-caliber drivers (Hamilton ~319 + Leclerc ~318) both scoring heavily, vs Mercedes' gap between Russell (~338) and rookie Antonelli (~264). The works team bonus also lifts factory teams over customers, dropping reigning champion McLaren to 3rd.
+                    <strong style={{ color: "#e2e8f0" }}>Ferrari edges Mercedes for WCC</strong> despite Mercedes having the stronger lead driver. Ferrari's edge: two championship-caliber drivers both scoring heavily, vs Mercedes' gap between Russell and rookie Antonelli. The works team bonus also lifts factory teams over customers, dropping reigning champion McLaren to 2nd.
                   </div>
                 </div>
               </div>
@@ -353,12 +383,134 @@
               </div>
             )}
 
+            {/* ═══ INSIGHTS ═══ */}
+            {tab === "insights" && (
+              <div>
+                {/* Sort toggle */}
+                <div style={{ display: "flex", gap: 4, marginBottom: 14, justifyContent: "flex-end" }}>
+                  {["consistency", "racecraft"].map(s => (
+                    <button key={s} onClick={() => setInsightSort(s)} style={{
+                      padding: "4px 10px", borderRadius: 5,
+                      background: insightSort === s ? "rgba(229,62,62,0.15)" : "rgba(255,255,255,0.03)",
+                      border: insightSort === s ? "1px solid rgba(229,62,62,0.25)" : "1px solid rgba(255,255,255,0.05)",
+                      color: insightSort === s ? "#fff" : "#475569", fontSize: 10, fontFamily: mono,
+                    }}>{s === "consistency" ? "Consistency (CV)" : "Race Craft (Δ)"}</button>
+                  ))}
+                </div>
+
+                {/* Explanation card */}
+                <div style={{ marginBottom: 14, padding: 12, borderRadius: 10, background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.05)" }}>
+                  <div style={{ fontSize: 9, fontFamily: mono, color: "#e53e3e", letterSpacing: 1.5, marginBottom: 6 }}>
+                    {insightSort === "consistency" ? "FINISHING CONSISTENCY · 2022–2024" : "GRID-TO-FINISH DELTA · 2022–2024"}
+                  </div>
+                  <div style={{ fontSize: 11, color: "#94a3b8", lineHeight: 1.6 }}>
+                    {insightSort === "consistency"
+                      ? "CV (coefficient of variation) = standard deviation ÷ average finish. Lower CV = more predictable results. These metrics inform the model but are shown here for transparency — not used as direct features, since 2026 regulation changes may reshape race dynamics."
+                      : "Average grid positions gained (+) or lost (−) per race. Positive = the driver consistently finishes ahead of where they qualify. This captures race craft, tyre management, and wheel-to-wheel ability — skills that tend to transfer across regulation changes."}
+                  </div>
+                </div>
+
+                {/* Driver rows */}
+                <div style={{ background: "rgba(255,255,255,0.015)", border: "1px solid rgba(255,255,255,0.04)", borderRadius: 10, overflow: "hidden" }}>
+                  <div style={{ padding: "8px 12px", borderBottom: "1px solid rgba(255,255,255,0.04)", background: "rgba(255,255,255,0.02)", display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 9, fontFamily: mono, color: "#475569", letterSpacing: 1 }}>
+                      {insightSort === "consistency" ? "SORTED BY CONSISTENCY (BEST → WORST)" : "SORTED BY RACE CRAFT (BEST → WORST)"}
+                    </span>
+                    <span style={{ fontSize: 9, fontFamily: mono, color: "#475569" }}>{INSIGHTS_DATA.length} DRIVERS</span>
+                  </div>
+
+                  {sortedInsights.map((d, i) => {
+                    const col = TEAM_COLORS[d.team] || "#555";
+                    const isConsistency = insightSort === "consistency";
+                    const mainVal = isConsistency ? d.cv : d.gridDelta;
+                    const barPct = isConsistency
+                      ? (1 - d.cv / maxCV) * 100
+                      : ((d.gridDelta + maxDelta) / (2 * maxDelta)) * 100;
+
+                    return (
+                      <div key={d.driver} style={{
+                        padding: "10px 12px", borderBottom: "1px solid rgba(255,255,255,0.025)",
+                        animation: `fadeUp 0.3s ease ${i * 0.03}s both`,
+                      }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: i < 3 ? "#22c55e" : "#334155", fontFamily: mono, width: 22, textAlign: "right", flexShrink: 0 }}>{i + 1}</span>
+                          <span style={{ width: 8, height: 8, borderRadius: "50%", background: col, flexShrink: 0 }} />
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: 13, fontWeight: 600 }}>{d.driver}</div>
+                            <div style={{ fontSize: 10, color: "#475569", fontFamily: mono }}>{d.team}</div>
+                          </div>
+                          <div style={{ textAlign: "right", flexShrink: 0 }}>
+                            <div style={{
+                              fontSize: 16, fontWeight: 700, fontFamily: mono,
+                              color: isConsistency
+                                ? (d.cv < 0.5 ? "#22c55e" : d.cv > 0.9 ? "#ef4444" : "#e2e8f0")
+                                : (d.gridDelta > 0.3 ? "#22c55e" : d.gridDelta < -1.0 ? "#ef4444" : "#e2e8f0"),
+                            }}>
+                              {isConsistency ? d.cv.toFixed(2) : `${d.gridDelta > 0 ? "+" : ""}${d.gridDelta.toFixed(1)}`}
+                            </div>
+                            <div style={{ fontSize: 7, fontFamily: mono, color: "#475569", letterSpacing: 0.5 }}>
+                              {isConsistency ? "CV" : "POSITIONS"}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Stats bar */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5, paddingLeft: 38 }}>
+                          {isConsistency ? (
+                            <div style={{ flex: 1, height: 8, background: "rgba(255,255,255,0.05)", borderRadius: 4, overflow: "hidden" }}>
+                              <div style={{
+                                height: "100%", borderRadius: 4, transition: "width 0.6s",
+                                width: `${Math.max(barPct, 3)}%`,
+                                background: d.cv < 0.5 ? "linear-gradient(90deg, #22c55e, #22c55e77)" : d.cv > 0.9 ? "linear-gradient(90deg, #ef4444, #ef444477)" : `linear-gradient(90deg, ${col}, ${col}77)`,
+                              }} />
+                            </div>
+                          ) : (
+                            <div style={{ flex: 1, height: 8, background: "rgba(255,255,255,0.05)", borderRadius: 4, overflow: "hidden", position: "relative" }}>
+                              {/* Center line at 50% = 0 delta */}
+                              <div style={{ position: "absolute", width: 1, height: "100%", left: "50%", background: "rgba(255,255,255,0.15)", top: 0 }} />
+                              <div style={{
+                                position: "absolute", height: "100%", borderRadius: 4, transition: "all 0.6s",
+                                left: d.gridDelta >= 0 ? "50%" : `${barPct}%`,
+                                width: `${Math.abs(d.gridDelta) / maxDelta * 50}%`,
+                                background: d.gridDelta > 0 ? "#22c55e99" : "#ef444499",
+                                top: 0,
+                              }} />
+                            </div>
+                          )}
+                          <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                            <span style={{ fontSize: 9, fontFamily: mono, color: "#64748b" }}>P{d.avgFinish}</span>
+                            <span style={{ fontSize: 9, fontFamily: mono, color: "#475569" }}>σ{d.stdDev}</span>
+                            <span style={{ fontSize: 9, fontFamily: mono, color: "#334155" }}>{d.races}R</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Key Insight card */}
+                <div style={{ marginTop: 16, padding: 14, borderRadius: 10, background: "rgba(39,244,210,0.04)", border: "1px solid rgba(39,244,210,0.10)" }}>
+                  <div style={{ fontSize: 9, fontFamily: mono, color: "#27F4D2", letterSpacing: 1.5, marginBottom: 6 }}>WHY THIS MATTERS FOR 2026</div>
+                  <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.7 }}>
+                    <strong style={{ color: "#e2e8f0" }}>Verstappen's paradox:</strong> His CV of 1.39 looks "inconsistent" — but only because his average is P2.8. A P1 finish and a P5 finish both look like huge swings relative to that elite mean. For everyone else, <strong style={{ color: "#e2e8f0" }}>Hamilton</strong> stands out as the best race-crafter (+0.5 positions/race), a skill that transfers across regulation changes. <strong style={{ color: "#e2e8f0" }}>Leclerc</strong> (−1.3) and <strong style={{ color: "#e2e8f0" }}>Sainz</strong> (−1.9) consistently lose positions on Sundays — a pattern to watch in 2026.
+                  </div>
+                </div>
+
+                {/* Data source note */}
+                <div style={{ marginTop: 10, padding: "8px 12px", borderRadius: 8, background: "rgba(255,255,255,0.015)" }}>
+                  <div style={{ fontSize: 9, fontFamily: mono, color: "#334155", lineHeight: 1.5 }}>
+                    Source: Kaggle F1 World Championship dataset · Race-by-race results 2022–2024 · {INSIGHTS_DATA.reduce((a, d) => a + d.races, 0)} total race entries analyzed
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Footer */}
             <div style={{ marginTop: 24, padding: 12, borderTop: "1px solid rgba(255,255,255,0.03)" }}>
               <div style={{ fontSize: 9, color: "#1e293b", fontFamily: mono, lineHeight: 1.7, textAlign: "center" }}>
-                GBM · Logistic · Bayesian Ensemble · Monte Carlo (10k sims) · LOO RMSE 1.98<br />
-                Data: 2014–2025 hybrid era · Bahrain Test 1 (Feb 2026) · Bookmaker consensus<br />
-                Built with Python + scikit-learn · For analysis purposes only
+                GBM · Logistic · Bayesian Ensemble · Monte Carlo (10k sims) · LOO RMSE 1.72<br />
+                Data: Kaggle F1 dataset (2014–2024) · Fox Sports (2025) · Bahrain Test 1 (Feb 2026)<br />
+                270 driver-seasons · 19 features · Built with Python + scikit-learn
               </div>
             </div>
           </div>
