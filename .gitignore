@@ -28,3 +28,4 @@ Thumbs.db
 
 # Generated outputs (reproducible via main.py)
 visualizations/*.png
+__pycache__/
