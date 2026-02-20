@@ -173,26 +173,31 @@ DRIVER_SEASON_RESULTS = [
     {"year": 2024, "driver": "Valtteri Bottas", "team": "Sauber", "engine": "Ferrari", "position": 22, "points": 0, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
     {"year": 2024, "driver": "Oliver Bearman", "team": "Haas", "engine": "Ferrari", "position": None, "points": 7, "wins": 0, "podiums": 0, "poles": 0, "races": 3},
 
-    # 2025 — Norris WDC, McLaren WCC
-    {"year": 2025, "driver": "Lando Norris", "team": "McLaren", "engine": "Mercedes", "position": 1, "points": 423, "wins": 7, "podiums": 18, "poles": 6, "races": 24},
-    {"year": 2025, "driver": "Max Verstappen", "team": "Red Bull", "engine": "Honda RBPT", "position": 2, "points": 421, "wins": 8, "podiums": 16, "poles": 8, "races": 24},
-    {"year": 2025, "driver": "Oscar Piastri", "team": "McLaren", "engine": "Mercedes", "position": 3, "points": 410, "wins": 7, "podiums": 17, "poles": 5, "races": 24},
-    {"year": 2025, "driver": "George Russell", "team": "Mercedes", "engine": "Mercedes", "position": 4, "points": 319, "wins": 2, "podiums": 10, "poles": 3, "races": 24},
-    {"year": 2025, "driver": "Charles Leclerc", "team": "Ferrari", "engine": "Ferrari", "position": 5, "points": 242, "wins": 0, "podiums": 6, "poles": 2, "races": 24},
-    {"year": 2025, "driver": "Lewis Hamilton", "team": "Ferrari", "engine": "Ferrari", "position": 6, "points": 156, "wins": 0, "podiums": 3, "poles": 0, "races": 24},
-    {"year": 2025, "driver": "Kimi Antonelli", "team": "Mercedes", "engine": "Mercedes", "position": 7, "points": 150, "wins": 0, "podiums": 2, "poles": 1, "races": 24},
+    # 2025 — Norris WDC (423 pts, +2 over Verstappen), McLaren WCC
+    # Sources: formula1.com final standings, RacingNews365, Wikipedia
+    # Tsunoda promoted to Red Bull from round 3, replacing Lawson who was demoted to Racing Bulls
+    # Doohan replaced by Colapinto at Alpine from round 7
+    {"year": 2025, "driver": "Lando Norris", "team": "McLaren", "engine": "Mercedes", "position": 1, "points": 423, "wins": 7, "podiums": 18, "poles": 7, "races": 24},
+    {"year": 2025, "driver": "Max Verstappen", "team": "Red Bull", "engine": "Honda RBPT", "position": 2, "points": 421, "wins": 8, "podiums": 15, "poles": 8, "races": 24},
+    {"year": 2025, "driver": "Oscar Piastri", "team": "McLaren", "engine": "Mercedes", "position": 3, "points": 410, "wins": 7, "podiums": 16, "poles": 6, "races": 24},
+    {"year": 2025, "driver": "George Russell", "team": "Mercedes", "engine": "Mercedes", "position": 4, "points": 319, "wins": 2, "podiums": 9, "poles": 3, "races": 24},
+    {"year": 2025, "driver": "Charles Leclerc", "team": "Ferrari", "engine": "Ferrari", "position": 5, "points": 242, "wins": 0, "podiums": 7, "poles": 1, "races": 24},
+    {"year": 2025, "driver": "Lewis Hamilton", "team": "Ferrari", "engine": "Ferrari", "position": 6, "points": 156, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
+    {"year": 2025, "driver": "Kimi Antonelli", "team": "Mercedes", "engine": "Mercedes", "position": 7, "points": 150, "wins": 0, "podiums": 1, "poles": 0, "races": 24},
     {"year": 2025, "driver": "Alex Albon", "team": "Williams", "engine": "Mercedes", "position": 8, "points": 73, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
-    {"year": 2025, "driver": "Carlos Sainz", "team": "Williams", "engine": "Mercedes", "position": 9, "points": 64, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
+    {"year": 2025, "driver": "Carlos Sainz", "team": "Williams", "engine": "Mercedes", "position": 9, "points": 64, "wins": 0, "podiums": 2, "poles": 0, "races": 24},
     {"year": 2025, "driver": "Fernando Alonso", "team": "Aston Martin", "engine": "Mercedes", "position": 10, "points": 56, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
-    {"year": 2025, "driver": "Isack Hadjar", "team": "Racing Bulls", "engine": "Honda RBPT", "position": 11, "points": 51, "wins": 0, "podiums": 1, "poles": 0, "races": 24},
-    {"year": 2025, "driver": "Nico Hulkenberg", "team": "Sauber", "engine": "Ferrari", "position": 12, "points": 49, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
-    {"year": 2025, "driver": "Oliver Bearman", "team": "Haas", "engine": "Ferrari", "position": 13, "points": 42, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
-    {"year": 2025, "driver": "Liam Lawson", "team": "Racing Bulls", "engine": "Honda RBPT", "position": 14, "points": 38, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
+    {"year": 2025, "driver": "Nico Hulkenberg", "team": "Sauber", "engine": "Ferrari", "position": 11, "points": 51, "wins": 0, "podiums": 1, "poles": 0, "races": 24},
+    {"year": 2025, "driver": "Isack Hadjar", "team": "Racing Bulls", "engine": "Honda RBPT", "position": 12, "points": 51, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
+    {"year": 2025, "driver": "Oliver Bearman", "team": "Haas", "engine": "Ferrari", "position": 13, "points": 41, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
+    {"year": 2025, "driver": "Liam Lawson", "team": "Racing Bulls", "engine": "Honda RBPT", "position": 14, "points": 38, "wins": 0, "podiums": 0, "poles": 0, "races": 22},
     {"year": 2025, "driver": "Esteban Ocon", "team": "Haas", "engine": "Ferrari", "position": 15, "points": 38, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
-    {"year": 2025, "driver": "Lance Stroll", "team": "Aston Martin", "engine": "Mercedes", "position": 16, "points": 34, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
+    {"year": 2025, "driver": "Lance Stroll", "team": "Aston Martin", "engine": "Mercedes", "position": 16, "points": 33, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
+    {"year": 2025, "driver": "Yuki Tsunoda", "team": "Red Bull", "engine": "Honda RBPT", "position": 17, "points": 33, "wins": 0, "podiums": 0, "poles": 0, "races": 22},
     {"year": 2025, "driver": "Pierre Gasly", "team": "Alpine", "engine": "Renault", "position": 18, "points": 22, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
     {"year": 2025, "driver": "Gabriel Bortoleto", "team": "Sauber", "engine": "Ferrari", "position": 19, "points": 19, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
-    {"year": 2025, "driver": "Franco Colapinto", "team": "Alpine", "engine": "Renault", "position": 20, "points": 0, "wins": 0, "podiums": 0, "poles": 0, "races": 24},
+    {"year": 2025, "driver": "Franco Colapinto", "team": "Alpine", "engine": "Renault", "position": 20, "points": 0, "wins": 0, "podiums": 0, "poles": 0, "races": 18},
+    {"year": 2025, "driver": "Jack Doohan", "team": "Alpine", "engine": "Renault", "position": 21, "points": 0, "wins": 0, "podiums": 0, "poles": 0, "races": 6},
     {"year": 2025, "driver": "Sergio Perez", "team": None, "engine": None, "position": None, "points": 0, "wins": 0, "podiums": 0, "poles": 0, "races": 0},
     {"year": 2025, "driver": "Valtteri Bottas", "team": None, "engine": None, "position": None, "points": 0, "wins": 0, "podiums": 0, "poles": 0, "races": 0},
 ]
@@ -272,16 +277,16 @@ CONSTRUCTOR_SEASON_RESULTS = [
     {"year": 2024, "team": "Mercedes", "engine": "Mercedes", "position": 4, "points": 468, "wins": 4},
     {"year": 2024, "team": "Aston Martin", "engine": "Mercedes", "position": 5, "points": 94, "wins": 0},
     {"year": 2024, "team": "Williams", "engine": "Mercedes", "position": 9, "points": 17, "wins": 0},
-    # 2025
+    # 2025 — McLaren WCC (back-to-back), source: formula1.com
     {"year": 2025, "team": "McLaren", "engine": "Mercedes", "position": 1, "points": 833, "wins": 14},
     {"year": 2025, "team": "Mercedes", "engine": "Mercedes", "position": 2, "points": 469, "wins": 2},
-    {"year": 2025, "team": "Red Bull", "engine": "Honda RBPT", "position": 3, "points": 451, "wins": 8},
+    {"year": 2025, "team": "Red Bull", "engine": "Honda RBPT", "position": 3, "points": 454, "wins": 8},
     {"year": 2025, "team": "Ferrari", "engine": "Ferrari", "position": 4, "points": 398, "wins": 0},
     {"year": 2025, "team": "Williams", "engine": "Mercedes", "position": 5, "points": 137, "wins": 0},
     {"year": 2025, "team": "Racing Bulls", "engine": "Honda RBPT", "position": 6, "points": 92, "wins": 0},
-    {"year": 2025, "team": "Aston Martin", "engine": "Mercedes", "position": 7, "points": 90, "wins": 0},
-    {"year": 2025, "team": "Haas", "engine": "Ferrari", "position": 8, "points": 80, "wins": 0},
-    {"year": 2025, "team": "Sauber", "engine": "Ferrari", "position": 9, "points": 68, "wins": 0},
+    {"year": 2025, "team": "Aston Martin", "engine": "Mercedes", "position": 7, "points": 89, "wins": 0},
+    {"year": 2025, "team": "Haas", "engine": "Ferrari", "position": 8, "points": 79, "wins": 0},
+    {"year": 2025, "team": "Sauber", "engine": "Ferrari", "position": 9, "points": 70, "wins": 0},
     {"year": 2025, "team": "Alpine", "engine": "Renault", "position": 10, "points": 22, "wins": 0},
 ]
 
