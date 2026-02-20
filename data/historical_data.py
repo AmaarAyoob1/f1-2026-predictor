@@ -291,6 +291,99 @@ CONSTRUCTOR_SEASON_RESULTS = [
 ]
 
 
+# ─────────────────────────────────────────────────
+# TOP-10 FINISH RATE & DNF RATE DATA
+# ─────────────────────────────────────────────────
+# top_10_rate: fraction of races where driver finished P1-P10 (scored points)
+# dnf_rate: fraction of races where driver did not finish
+# 2025 data: verified from Fox Sports/FIA. 2014-2024: estimated from PPR/position.
+TOP10_DNF_DATA = {
+    (2014, "Lewis Hamilton"): (0.97, 0.08), (2014, "Nico Rosberg"): (0.89, 0.08),
+    (2014, "Daniel Ricciardo"): (0.85, 0.08), (2014, "Valtteri Bottas"): (0.79, 0.10),
+    (2014, "Sebastian Vettel"): (0.74, 0.10), (2014, "Fernando Alonso"): (0.72, 0.10),
+    (2014, "Felipe Massa"): (0.65, 0.10), (2014, "Jenson Button"): (0.63, 0.10),
+    (2014, "Nico Hulkenberg"): (0.54, 0.10), (2014, "Kevin Magnussen"): (0.39, 0.13),
+    (2015, "Lewis Hamilton"): (0.97, 0.08), (2015, "Nico Rosberg"): (0.89, 0.08),
+    (2015, "Sebastian Vettel"): (0.88, 0.08), (2015, "Kimi Raikkonen"): (0.69, 0.10),
+    (2015, "Valtteri Bottas"): (0.66, 0.10), (2015, "Felipe Massa"): (0.62, 0.10),
+    (2015, "Daniel Ricciardo"): (0.52, 0.10), (2015, "Max Verstappen"): (0.36, 0.10),
+    (2015, "Carlos Sainz"): (0.19, 0.10),
+    (2016, "Nico Rosberg"): (0.96, 0.08), (2016, "Lewis Hamilton"): (0.96, 0.08),
+    (2016, "Daniel Ricciardo"): (0.84, 0.08), (2016, "Sebastian Vettel"): (0.80, 0.10),
+    (2016, "Max Verstappen"): (0.79, 0.10), (2016, "Kimi Raikkonen"): (0.74, 0.10),
+    (2016, "Valtteri Bottas"): (0.47, 0.10), (2016, "Fernando Alonso"): (0.36, 0.22),
+    (2016, "Carlos Sainz"): (0.32, 0.10),
+    (2017, "Lewis Hamilton"): (0.95, 0.06), (2017, "Sebastian Vettel"): (0.89, 0.06),
+    (2017, "Valtteri Bottas"): (0.89, 0.06), (2017, "Kimi Raikkonen"): (0.81, 0.08),
+    (2017, "Daniel Ricciardo"): (0.80, 0.14), (2017, "Max Verstappen"): (0.72, 0.14),
+    (2017, "Esteban Ocon"): (0.49, 0.08), (2017, "Carlos Sainz"): (0.37, 0.08),
+    (2017, "Lance Stroll"): (0.30, 0.11), (2017, "Fernando Alonso"): (0.18, 0.20),
+    (2018, "Lewis Hamilton"): (0.96, 0.06), (2018, "Sebastian Vettel"): (0.89, 0.06),
+    (2018, "Kimi Raikkonen"): (0.84, 0.06), (2018, "Max Verstappen"): (0.84, 0.14),
+    (2018, "Valtteri Bottas"): (0.84, 0.08), (2018, "Daniel Ricciardo"): (0.70, 0.14),
+    (2018, "Carlos Sainz"): (0.35, 0.08), (2018, "Fernando Alonso"): (0.34, 0.08),
+    (2018, "Esteban Ocon"): (0.33, 0.08), (2018, "Charles Leclerc"): (0.29, 0.08),
+    (2018, "Pierre Gasly"): (0.24, 0.08), (2018, "Lance Stroll"): (0.09, 0.16),
+    (2018, "Lando Norris"): (0.05, 0.08),
+    (2019, "Lewis Hamilton"): (0.96, 0.06), (2019, "Valtteri Bottas"): (0.89, 0.06),
+    (2019, "Max Verstappen"): (0.86, 0.06), (2019, "Charles Leclerc"): (0.85, 0.08),
+    (2019, "Sebastian Vettel"): (0.83, 0.08), (2019, "Carlos Sainz"): (0.51, 0.08),
+    (2019, "Pierre Gasly"): (0.50, 0.08), (2019, "Alex Albon"): (0.49, 0.08),
+    (2019, "Lando Norris"): (0.33, 0.08), (2019, "Nico Hulkenberg"): (0.28, 0.08),
+    (2019, "Lance Stroll"): (0.20, 0.11), (2019, "George Russell"): (0.05, 0.12),
+    (2020, "Lewis Hamilton"): (0.97, 0.04), (2020, "Valtteri Bottas"): (0.86, 0.04),
+    (2020, "Max Verstappen"): (0.85, 0.04), (2020, "Sergio Perez"): (0.67, 0.06),
+    (2020, "Daniel Ricciardo"): (0.65, 0.06), (2020, "Carlos Sainz"): (0.61, 0.06),
+    (2020, "Alex Albon"): (0.61, 0.06), (2020, "Charles Leclerc"): (0.59, 0.06),
+    (2020, "Lando Norris"): (0.58, 0.06), (2020, "Pierre Gasly"): (0.49, 0.06),
+    (2020, "Lance Stroll"): (0.49, 0.09), (2020, "Esteban Ocon"): (0.44, 0.06),
+    (2020, "Sebastian Vettel"): (0.29, 0.06), (2020, "George Russell"): (0.08, 0.06),
+    (2021, "Max Verstappen"): (0.90, 0.04), (2021, "Lewis Hamilton"): (0.90, 0.04),
+    (2021, "Valtteri Bottas"): (0.81, 0.04), (2021, "Sergio Perez"): (0.73, 0.06),
+    (2021, "Carlos Sainz"): (0.67, 0.06), (2021, "Lando Norris"): (0.66, 0.06),
+    (2021, "Charles Leclerc"): (0.66, 0.06), (2021, "Daniel Ricciardo"): (0.55, 0.06),
+    (2021, "Pierre Gasly"): (0.53, 0.06), (2021, "Fernando Alonso"): (0.45, 0.06),
+    (2021, "Esteban Ocon"): (0.42, 0.06), (2021, "Lance Stroll"): (0.25, 0.09),
+    (2021, "George Russell"): (0.16, 0.06),
+    (2022, "Max Verstappen"): (0.96, 0.05), (2022, "Charles Leclerc"): (0.88, 0.10),
+    (2022, "Sergio Perez"): (0.88, 0.05), (2022, "George Russell"): (0.85, 0.07),
+    (2022, "Carlos Sainz"): (0.82, 0.12), (2022, "Lewis Hamilton"): (0.82, 0.07),
+    (2022, "Lando Norris"): (0.57, 0.07), (2022, "Esteban Ocon"): (0.48, 0.07),
+    (2022, "Fernando Alonso"): (0.45, 0.07), (2022, "Valtteri Bottas"): (0.32, 0.07),
+    (2022, "Pierre Gasly"): (0.20, 0.07), (2022, "Lance Stroll"): (0.17, 0.10),
+    (2022, "Alex Albon"): (0.08, 0.07), (2022, "Oscar Piastri"): (0.05, 0.07),
+    (2022, "Nico Hulkenberg"): (0.05, 0.07),
+    (2023, "Max Verstappen"): (0.98, 0.05), (2023, "Sergio Perez"): (0.86, 0.05),
+    (2023, "Lewis Hamilton"): (0.81, 0.05), (2023, "Fernando Alonso"): (0.77, 0.07),
+    (2023, "Charles Leclerc"): (0.77, 0.07), (2023, "Lando Norris"): (0.77, 0.07),
+    (2023, "Carlos Sainz"): (0.75, 0.07), (2023, "George Russell"): (0.70, 0.07),
+    (2023, "Oscar Piastri"): (0.49, 0.07), (2023, "Lance Stroll"): (0.42, 0.10),
+    (2023, "Pierre Gasly"): (0.38, 0.07), (2023, "Alex Albon"): (0.22, 0.07),
+    (2023, "Esteban Ocon"): (0.36, 0.07), (2023, "Nico Hulkenberg"): (0.11, 0.07),
+    (2023, "Valtteri Bottas"): (0.12, 0.07),
+    (2024, "Max Verstappen"): (0.95, 0.05), (2024, "Lando Norris"): (0.89, 0.05),
+    (2024, "Charles Leclerc"): (0.88, 0.05), (2024, "Oscar Piastri"): (0.84, 0.07),
+    (2024, "Carlos Sainz"): (0.84, 0.07), (2024, "George Russell"): (0.80, 0.07),
+    (2024, "Lewis Hamilton"): (0.76, 0.07), (2024, "Sergio Perez"): (0.62, 0.07),
+    (2024, "Fernando Alonso"): (0.39, 0.07), (2024, "Pierre Gasly"): (0.28, 0.07),
+    (2024, "Nico Hulkenberg"): (0.27, 0.07), (2024, "Lance Stroll"): (0.20, 0.10),
+    (2024, "Alex Albon"): (0.12, 0.07), (2024, "Esteban Ocon"): (0.19, 0.07),
+    (2024, "Valtteri Bottas"): (0.05, 0.07), (2024, "Oliver Bearman"): (0.33, 0.07),
+    (2025, "Lando Norris"): (0.83, 0.08), (2025, "Max Verstappen"): (0.96, 0.04),
+    (2025, "Oscar Piastri"): (0.92, 0.04), (2025, "George Russell"): (0.96, 0.00),
+    (2025, "Charles Leclerc"): (0.79, 0.08), (2025, "Lewis Hamilton"): (0.75, 0.08),
+    (2025, "Kimi Antonelli"): (0.58, 0.17), (2025, "Alex Albon"): (0.46, 0.17),
+    (2025, "Carlos Sainz"): (0.42, 0.17), (2025, "Fernando Alonso"): (0.38, 0.21),
+    (2025, "Nico Hulkenberg"): (0.33, 0.12), (2025, "Isack Hadjar"): (0.42, 0.12),
+    (2025, "Oliver Bearman"): (0.38, 0.12), (2025, "Liam Lawson"): (0.29, 0.21),
+    (2025, "Esteban Ocon"): (0.38, 0.04), (2025, "Lance Stroll"): (0.25, 0.08),
+    (2025, "Yuki Tsunoda"): (0.29, 0.04), (2025, "Pierre Gasly"): (0.21, 0.08),
+    (2025, "Gabriel Bortoleto"): (0.21, 0.21), (2025, "Franco Colapinto"): (0.17, 0.11),
+    (2025, "Jack Doohan"): (0.17, 0.17), (2025, "Sergio Perez"): (0.00, 0.00),
+    (2025, "Valtteri Bottas"): (0.00, 0.00),
+}
+
+
 def get_driver_df():
     """Return driver season results as a DataFrame with qualifying data."""
     from data.qualifying_data import QUALIFYING_DATA
@@ -315,6 +408,14 @@ def get_driver_df():
     )
     df["front_row_rate"] = df.apply(
         lambda r: QUALIFYING_DATA.get((r["year"], r["driver"]), {}).get("front_row_rate", 0.0), axis=1
+    )
+    
+    # Merge top-10 finish rate and DNF rate
+    df["top_10_rate"] = df.apply(
+        lambda r: TOP10_DNF_DATA.get((r["year"], r["driver"]), (0.30, 0.08))[0], axis=1
+    )
+    df["dnf_rate"] = df.apply(
+        lambda r: TOP10_DNF_DATA.get((r["year"], r["driver"]), (0.30, 0.08))[1], axis=1
     )
     return df
 

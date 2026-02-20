@@ -117,6 +117,9 @@ def compute_driver_rolling_features(driver_df: pd.DataFrame, window: int = 3) ->
                 "rolling_avg_quali_pos": window_data["avg_quali_pos"].mean() if "avg_quali_pos" in window_data.columns else 15.0,
                 "rolling_q3_rate": window_data["q3_rate"].mean() if "q3_rate" in window_data.columns else 0.0,
                 "rolling_front_row_rate": window_data["front_row_rate"].mean() if "front_row_rate" in window_data.columns else 0.0,
+                # Consistency & reliability features (rolling)
+                "rolling_top_10_rate": window_data["top_10_rate"].mean() if "top_10_rate" in window_data.columns else 0.50,
+                "rolling_dnf_rate": window_data["dnf_rate"].mean() if "dnf_rate" in window_data.columns else 0.08,
                 # Career features
                 "career_seasons": len(active[active["year"] <= year]),
                 "career_total_wins": active[active["year"] <= year]["wins"].sum(),
@@ -367,6 +370,8 @@ def build_2026_features(
             "rolling_avg_quali_pos": recent["avg_quali_pos"].mean() if len(recent) > 0 and "avg_quali_pos" in recent.columns else 15.0,
             "rolling_q3_rate": recent["q3_rate"].mean() if len(recent) > 0 and "q3_rate" in recent.columns else 0.0,
             "rolling_front_row_rate": recent["front_row_rate"].mean() if len(recent) > 0 and "front_row_rate" in recent.columns else 0.0,
+            "rolling_top_10_rate": recent["top_10_rate"].mean() if len(recent) > 0 and "top_10_rate" in recent.columns else 0.50,
+            "rolling_dnf_rate": recent["dnf_rate"].mean() if len(recent) > 0 and "dnf_rate" in recent.columns else 0.08,
             "career_seasons": len(active_hist),
             "career_total_wins": active_hist["wins"].sum() if len(active_hist) > 0 else 0,
         }

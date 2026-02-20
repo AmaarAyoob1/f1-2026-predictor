@@ -1,170 +1,105 @@
 # 🏎️ F1 2026 Championship Prediction Model
 
-A multi-model machine learning pipeline that predicts the 2026 Formula 1 World Drivers' and Constructors' Championships using Gradient Boosting, Bayesian Ensemble, Elo Ratings, and Monte Carlo simulation.
+A multi-model machine learning pipeline that predicts the 2026 Formula 1 World Drivers' and Constructors' Championships using ensemble methods combining Gradient Boosting, Bayesian probability estimation, and Monte Carlo season simulation.
 
-**LOO Cross-Validation RMSE: 1.98 positions** · **10,000 simulated seasons** · **19 engineered features** · **12 seasons of training data (2014–2025)**
+## 🏆 Predictions
 
----
+| Pos | Driver | Team | Win Prob | Avg Points |
+|-----|--------|------|----------|------------|
+| 1 | Max Verstappen | Red Bull | 32.8% | 320 |
+| 2 | Lando Norris | McLaren | 21.6% | 288 |
+| 3 | George Russell | Mercedes | 14.4% | 297 |
+| 4 | Charles Leclerc | Ferrari | 11.6% | 293 |
+| 5 | Oscar Piastri | McLaren | 11.1% | 228 |
+| 6 | Lewis Hamilton | Ferrari | 4.3% | 255 |
 
-## 📊 Key Predictions
-
-| # | Driver | Team | Win Probability | Expected Points |
-|---|--------|------|:-:|:-:|
-| 1 | Max Verstappen | Red Bull | **30.0%** | 334 |
-| 2 | George Russell | Mercedes | **21.5%** | 338 |
-| 3 | Lando Norris | McLaren | **17.0%** | 305 |
-| 4 | Oscar Piastri | McLaren | **9.7%** | 236 |
-| 5 | Charles Leclerc | Ferrari | **9.1%** | 318 |
-| 6 | Lewis Hamilton | Ferrari | **8.2%** | 319 |
-
-| # | Constructor | Title Probability | Expected Points |
-|---|-------------|:-:|:-:|
-| 1 | Ferrari | **32.5%** | 637 |
-| 2 | Mercedes | **28.0%** | 601 |
-| 3 | McLaren | **22.0%** | 541 |
-| 4 | Red Bull | **15.5%** | 408 |
+**Constructors:** Ferrari (548 pts) > McLaren (516) > Mercedes (482) > Red Bull (395)
 
 ## 🧠 Model Architecture
 
-```
-Historical Data (2014-2025)
-        │
-        ├──→ Elo Rating System (custom F1-adapted)
-        │         │
-        ├──→ Feature Engineering (19 features)
-        │         │
-        │    ┌────┴────────────────┐
-        │    │                     │
-        │    ▼                     ▼
-        │  GBM Position      Logistic Regression
-        │  Predictor          (P(champion), P(top3))
-        │    │                     │
-        │    └──────┬──────────────┘
-        │           │
-        │           ▼
-        │    Bayesian Ensemble ◄── Pre-season Testing
-        │    (Log-linear pooling)◄── Bookmaker Odds
-        │           │
-        │           ▼
-        └──→ Monte Carlo Simulator (10,000 seasons)
-                    │
-                    ▼
-            Championship Probabilities
-```
+### Three-Model Ensemble
+1. **Gradient Boosting Regressor** — Predicts championship position from 19 features (LOO RMSE: 1.99)
+2. **Bayesian Probability Model** — Calibrates bookmaker odds with historical Elo priors
+3. **Monte Carlo Simulator** — 10,000 season simulations with realistic race chaos
 
-### What Makes 2026 Special
+### Composite Driver Strength Formula (8 Components)
+- **Historical performance** (40% regulation discount for 2026's radical rule change)
+- **Car/Engine quality** (preseason testing, engine maturity, works team bonus)
+- **Podium rate** (sustained excellence metric)
+- **F1 Experience** (actual career years with √diminishing returns)
+- **Regulation veteran bonus** (2.5 pts per reg change survived: 2014/2017/2022)
+- **Age-prime curve** (peak at 25-31, gradual decline after 35, sharp drop after 40)
+- **Top-10 consistency bonus** (points-scoring reliability)
+- **DNF rate penalty** (reliability and crash-proneness)
 
-The 2026 season introduces the most significant regulation changes since 2014: new power unit rules (50/50 ICE/electric split), active aerodynamics, and an 11th team (Cadillac). This creates a unique modeling challenge — historical performance data becomes less predictive when the cars fundamentally change.
+### Monte Carlo Realism Features
+- Strength compression (30-100 scale, ensures backmarkers can score in chaos)
+- Per-season form variance (σ=5, allows teammate flips)
+- Safety car modeling (40% probability, ±6 strategy luck)
+- Wet race compression (15% probability, reduces top-team advantage 30%)
+- First-lap incidents (20% probability, 12% driver involvement)
+- Mid-season development convergence (factor 0.10)
 
-**Two critical innovations in this model:**
+## 📊 Custom Elo Rating System
+Tracks driver skill evolution across 2014-2025 (K=32). Current ratings:
+- Verstappen: 1747 | Hamilton: 1653 | Norris: 1593 | Leclerc: 1577 | Piastri: 1573
 
-1. **Regulation Discount (Section 7):** Historical features are reduced by 60% in regulation-change years, based on the 2014 and 2022 precedents where dominant teams fell dramatically.
-
-2. **Works Team Bonus (Section 8):** Factory teams (who build their own engine) receive a +15 engine maturity bonus over customer teams. In 2014, works Mercedes won 16/19 races while customer Williams won 0 despite using the same engine. This single feature moved George Russell from 4.4% to 21.5% championship probability.
-
-## 🏗️ Project Structure
+## 📁 Project Structure
 
 ```
 f1-predictor/
+├── main.py                          # Pipeline entry point + strength formula + MC simulator
 ├── data/
-│   ├── historical_data.py         # 2014-2025 seasons, 2026 grid, testing, odds
-│   └── qualifying_data.py         # Qualifying stats (explored, excluded — see docs)
+│   ├── historical_data.py           # 159 driver-seasons (2014-2025) + top-10/DNF rates
+│   └── qualifying_data.py           # Qualifying performance data
 ├── features/
-│   ├── elo_ratings.py             # Custom F1 Elo system with adaptive K-factors
-│   └── feature_engineering.py     # 19 features + works team bonus
+│   ├── elo_ratings.py               # Custom Elo rating system
+│   └── feature_engineering.py       # Rolling features + 2026 feature builder
 ├── models/
-│   └── train_models.py            # GBM, Logistic, Bayesian, Monte Carlo
-├── evaluation/
-│   └── metrics.py                 # Brier score, calibration, LOO-CV
-├── visualizations/                # Generated CSVs and plots
-├── docs/                          # Technical documentation (.docx)
-├── dashboard/                     # Interactive React dashboard (.html)
-├── main.py                        # End-to-end pipeline orchestrator
-├── requirements.txt
-└── README.md
+│   └── train_models.py              # GBM + Bayesian + Monte Carlo
+├── dashboard/
+│   └── f1-2026-predictor.html       # Interactive React dashboard
+└── docs/
+    └── F1_2026_Technical_Doc.docx   # Full technical documentation
 ```
 
 ## 🚀 Quick Start
 
 ```bash
 # Clone
-git clone https://github.com/YOUR_USERNAME/f1-2026-predictor.git
+git clone https://github.com/AmaarAyoob1/f1-2026-predictor.git
 cd f1-2026-predictor
 
 # Install dependencies
-pip install -r requirements.txt
+pip install pandas numpy scikit-learn matplotlib
 
-# Run the full pipeline
+# Run predictions
 python main.py
+
+# View dashboard
+open dashboard/f1-2026-predictor.html
 ```
 
-The pipeline runs end-to-end in ~30 seconds and outputs:
-- Championship probability tables (WDC + WCC)
-- Model vs bookmaker comparison
-- LOO cross-validation results
-- Feature importance rankings
-- Evaluation dashboard (PNG)
-- Prediction CSVs
+## 🔧 Technical Details
 
-## 📈 Model Evaluation
+- **Training data:** 159 driver-season records (2014-2025 hybrid era)
+- **Validation:** Leave-One-Out CV, RMSE = 1.99
+- **2025 data:** Verified against official FIA standings (Fox Sports, Wikipedia)
+- **MC simulations:** 10,000 complete 24-race seasons
+- **Ensemble:** 50% MC win probability + 50% Bayesian win probability
 
-**Leave-One-Season-Out Cross-Validation:**
+## 📈 Key Design Decisions
 
-| Holdout Year | RMSE | Context |
-|:---:|:---:|---|
-| 2020 | 2.13 | COVID-shortened season |
-| 2021 | 1.26 | Verstappen vs Hamilton title fight |
-| 2022 | 2.58 | Regulation change year |
-| 2023 | 2.26 | Verstappen dominance |
-| 2024 | 2.31 | McLaren resurgence |
-| 2025 | 1.33 | Norris WDC |
-| **Average** | **1.98** | |
+**Why 2014+ data only?** The 2014 turbo-hybrid regulation change is the closest analog to 2026's power unit revolution. Pre-2014 data (V8 era) has limited predictive value for post-regulation performance.
 
-**Top 5 Feature Importances (GBM):**
+**Why 40% regulation discount?** Historical analysis shows that in 2014's comparable PU reset, the pre-regulation champion (Vettel/Red Bull) dropped from P1 to P5. Engine advantage dominated year-1 outcomes.
 
-| Feature | Importance | What It Captures |
-|---|:-:|---|
-| `rolling_avg_ppr` | 0.4412 | Recent points-per-race consistency |
-| `rolling_avg_position` | 0.3176 | Championship finishing trend |
-| `performance_trend` | 0.0941 | Improving vs declining trajectory |
-| `elo_x_team_pos` | 0.0580 | Elite driver × top team interaction |
-| `rolling_podium_rate` | 0.0229 | Sustained excellence signal |
+**Why age-prime curve?** F1 drivers peak at 25-31 (reaction time, G-force tolerance, neck stamina). Schumacher's 2010-12 return (age 41-43) showed ~0.3s/lap decline. Alonso at 44 is the oldest driver since the 2000s.
 
-## 🔬 Feature Ablation: Qualifying Data
+## 🏁 Future Work
+- **Live update pipeline:** Bayesian blending of pre-season estimates with actual 2026 race results
+- **Teammate head-to-head:** Transitive comparison networks for relative driver ability
+- **Circuit-type clustering:** Simulating different race types (street, high-downforce, power-sensitive)
 
-We investigated adding qualifying performance features (`avg_quali_pos`, `q3_rate`, `front_row_rate`) and found they **worsened** the model:
-
-| Metric | Without Qualifying | With Qualifying |
-|---|:-:|:-:|
-| LOO RMSE | **1.98** | 2.08 |
-| Verstappen edge vs books | +8.0% | +14.0% |
-| Russell edge vs books | -6.6% | -8.3% |
-
-**Root cause:** Multicollinearity with existing features (qualifying correlates r>0.85 with points-per-race) and ~70% car-dependency making qualifying unreliable in regulation-change years. See the technical documentation for the full ablation study.
-
-## 📄 Documentation
-
-A comprehensive 14-section [technical document](docs/F1_2026_Prediction_Model_Technical_Documentation.docx) covers the complete theory, math, and code — including Elo derivations, Bayesian log-linear pooling equations, Monte Carlo race simulation mechanics, regulation discount justification, works team bonus evidence, and the qualifying ablation study.
-
-## ⚡ Interactive Dashboard
-
-An [interactive React dashboard](dashboard/f1-2026-predictor.html) lets you explore all predictions — toggle between Ensemble/Monte Carlo/Bayesian, compare model vs bookmaker odds, and tap any driver for detailed breakdowns. Open directly in any browser, no build tools needed.
-
-## 🛠️ Tech Stack
-
-- **Python 3.12** — Core pipeline
-- **scikit-learn** — GBM, Logistic Regression, TimeSeriesSplit, StandardScaler
-- **NumPy / SciPy** — Monte Carlo simulation, Bayesian computation
-- **Pandas** — Data engineering
-- **Matplotlib** — Evaluation visualizations
-- **React 18** — Interactive dashboard (via CDN, no build step)
-
-## 📝 License
-
-MIT
-
-## 👤 Author
-
-**Ayoob** — MS Statistics & Machine Learning · MS Financial Engineering · Claremont Graduate University
-
-Built as a portfolio project demonstrating applied ML, sports analytics, Bayesian methods, and Monte Carlo simulation for quantitative analysis roles.
+## 📄 License
+MIT License — see LICENSE file

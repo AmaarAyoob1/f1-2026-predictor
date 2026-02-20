@@ -255,10 +255,12 @@ class MonteCarloSimulator:
     Full-season Monte Carlo simulation.
     
     Simulates each race individually with:
-    - Driver strength (from composite score)
+    - Normalized driver strength (compressed to 0-100 scale)
+    - Per-season driver form variance (allows teammate flips)
     - Race-day variance (mechanical failures, weather, incidents)
+    - Safety car / red flag chaos (occasionally shuffles entire field)
     - Team development trajectory (mid-season upgrades)
-    - Fatigue/momentum effects
+    - First-lap incident risk
     
     Produces championship probability distributions.
     """
@@ -269,6 +271,26 @@ class MonteCarloSimulator:
     def __init__(self, n_simulations=10000, random_state=42):
         self.n_simulations = n_simulations
         self.rng = np.random.RandomState(random_state)
+    
+    def _normalize_strengths(self, driver_strengths: dict) -> dict:
+        """
+        Compress raw strengths to 0-100 scale.
+        
+        This is critical: the raw strength gap (~80 points) is too wide
+        relative to per-race noise, meaning lower-tier drivers can literally
+        never score points. In real F1, even backmarkers occasionally score
+        via safety cars, rain, or DNFs ahead. Compression to 0-100 with a
+        floor of 30 ensures a realistic spread.
+        """
+        vals = np.array(list(driver_strengths.values()))
+        mn, mx = vals.min(), vals.max()
+        
+        # Normalize to 30-100 range (floor of 30 ensures even the weakest
+        # driver has *some* chance of scoring in a chaotic race)
+        normalized = {}
+        for driver, raw in driver_strengths.items():
+            normalized[driver] = 30 + 70 * (raw - mn) / (mx - mn)
+        return normalized
     
     def simulate_season(
         self,
@@ -282,7 +304,7 @@ class MonteCarloSimulator:
         Parameters
         ----------
         driver_strengths : dict
-            driver_name -> base strength score (0-100)
+            driver_name -> base strength score (raw, will be normalized)
         team_reliability : dict
             team_name -> reliability probability (0-1)
         driver_teams : dict
@@ -295,6 +317,14 @@ class MonteCarloSimulator:
         drivers = list(driver_strengths.keys())
         n_drivers = len(drivers)
         
+        # Normalize to 0-100 scale for realistic race simulation
+        norm_strengths = self._normalize_strengths(driver_strengths)
+        
+        # Group teammates for form-variance modeling
+        team_drivers = {}
+        for d, t in driver_teams.items():
+            team_drivers.setdefault(t, []).append(d)
+        
         # Track championship points across simulations
         all_points = np.zeros((self.n_simulations, n_drivers))
         all_wins = np.zeros((self.n_simulations, n_drivers))
@@ -303,39 +333,84 @@ class MonteCarloSimulator:
             season_points = np.zeros(n_drivers)
             season_wins = np.zeros(n_drivers)
             
+            # ── Per-season driver form offset ──
+            # Each driver gets a season-long form offset.
+            # This represents: confidence, car setup affinity, personal life,
+            # adaptation speed to new regs. Crucially, this allows teammates
+            # to flip — e.g., in some seasons Piastri adapts faster than Norris.
+            # σ=5 means ~68% of seasons the offset is within ±5 points,
+            # which is enough to flip closely-matched teammates (~30% of the time
+            # for a 6-point gap).
+            season_form = {
+                drivers[i]: self.rng.normal(0, 5)
+                for i in range(n_drivers)
+            }
+            
             for race in range(self.N_RACES_2026):
-                # Base performance with noise
                 race_performances = np.zeros(n_drivers)
+                season_progress = race / self.N_RACES_2026
+                
+                # ── Determine race conditions ──
+                is_wet = self.rng.random() < 0.15          # ~15% wet races
+                has_safety_car = self.rng.random() < 0.40   # ~40% of races have SC
+                has_first_lap_chaos = self.rng.random() < 0.20  # T1 incidents
                 
                 for i, driver in enumerate(drivers):
-                    base = driver_strengths[driver]
+                    base = norm_strengths[driver]
                     team = driver_teams[driver]
                     
-                    # Race-day variance (Gaussian noise)
-                    # Higher in reg-change years — more unpredictability
-                    noise = self.rng.normal(0, 12)
+                    # Apply season form
+                    effective_strength = base + season_form[driver]
                     
-                    # Mechanical failure (DNF probability)
-                    # Slightly higher early season for new PUs, improving over time
+                    # ── Race-day noise ──
+                    # σ=15 for regulation-change year (higher unpredictability
+                    # than normal season σ~10, because teams are still learning
+                    # the cars, setups are experimental, drivers adapting)
+                    noise = self.rng.normal(0, 15)
+                    
+                    # ── Mechanical failure (DNF) ──
                     base_reliability = team_reliability.get(team, 0.85)
-                    season_progress = race / self.N_RACES_2026
+                    # Reliability improves ~30% over the season as PU matures
                     reliability = base_reliability + (1 - base_reliability) * 0.3 * season_progress
                     if self.rng.random() > reliability:
                         race_performances[i] = -100  # DNF
                         continue
                     
-                    # Mid-season development (teams converge as season progresses)
-                    # Weaker teams typically improve more — regression toward the mean
-                    mean_strength = np.mean(list(driver_strengths.values()))
-                    development = self.rng.normal(0, 1.5) * season_progress
-                    convergence = (mean_strength - base) * 0.08 * season_progress
+                    # ── First-lap incident ──
+                    # Any driver can get caught in T1 chaos regardless of pace
+                    if has_first_lap_chaos and self.rng.random() < 0.12:
+                        # ~12% chance per driver of being involved when chaos occurs
+                        if self.rng.random() < 0.4:
+                            race_performances[i] = -100  # DNF from lap 1
+                            continue
+                        else:
+                            noise -= 15  # Damage, dropped positions, pit for repairs
                     
-                    # Weather randomizer (occasionally shuffles field)
+                    # ── Weather effect ──
+                    # Wet races are great equalizers — midfield can shine
                     weather_effect = 0
-                    if self.rng.random() < 0.15:  # ~15% wet races
-                        weather_effect = self.rng.normal(0, 5)
+                    if is_wet:
+                        # Compress field: reduce the advantage of top teams
+                        # and add large variance (rain driving skill varies)
+                        weather_effect = self.rng.normal(0, 10)
+                        effective_strength = (effective_strength * 0.7 + 
+                                            30 * 0.3)  # pull toward midfield
                     
-                    race_performances[i] = base + noise + development + convergence + weather_effect
+                    # ── Safety car shuffle ──
+                    # Safety cars compress the field and reward strategy luck
+                    sc_effect = 0
+                    if has_safety_car:
+                        sc_effect = self.rng.normal(0, 6)  # strategy luck/unluck
+                    
+                    # ── Mid-season development ──
+                    # Weaker teams converge as they copy concepts from frontrunners
+                    mean_strength = np.mean(list(norm_strengths.values()))
+                    development = self.rng.normal(0, 1.5) * season_progress
+                    convergence = (mean_strength - base) * 0.10 * season_progress
+                    
+                    race_performances[i] = (effective_strength + noise + 
+                                           weather_effect + sc_effect + 
+                                           development + convergence)
                 
                 # Convert performances to positions and points
                 race_order = np.argsort(-race_performances)  # highest perf = P1
