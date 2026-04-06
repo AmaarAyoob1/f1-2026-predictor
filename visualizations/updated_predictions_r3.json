@@ -1,0 +1,200 @@
+[
+  {
+    "driver": "George Russell",
+    "team": "Mercedes",
+    "actual_pts": 63,
+    "projected_total": 475,
+    "projected_remaining": 412,
+    "win_pct": 80.2,
+    "top3_pct": 100.0
+  },
+  {
+    "driver": "Kimi Antonelli",
+    "team": "Mercedes",
+    "actual_pts": 73,
+    "projected_total": 446,
+    "projected_remaining": 373,
+    "win_pct": 19.6,
+    "top3_pct": 99.9
+  },
+  {
+    "driver": "Charles Leclerc",
+    "team": "Ferrari",
+    "actual_pts": 49,
+    "projected_total": 352,
+    "projected_remaining": 303,
+    "win_pct": 0.3,
+    "top3_pct": 87.1
+  },
+  {
+    "driver": "Lewis Hamilton",
+    "team": "Ferrari",
+    "actual_pts": 41,
+    "projected_total": 299,
+    "projected_remaining": 258,
+    "win_pct": 0.0,
+    "top3_pct": 13.0
+  },
+  {
+    "driver": "Lando Norris",
+    "team": "McLaren",
+    "actual_pts": 24,
+    "projected_total": 175,
+    "projected_remaining": 151,
+    "win_pct": 0.0,
+    "top3_pct": 0.0
+  },
+  {
+    "driver": "Oscar Piastri",
+    "team": "McLaren",
+    "actual_pts": 18,
+    "projected_total": 162,
+    "projected_remaining": 144,
+    "win_pct": 0.0,
+    "top3_pct": 0.0
+  },
+  {
+    "driver": "Max Verstappen",
+    "team": "Red Bull",
+    "actual_pts": 15,
+    "projected_total": 155,
+    "projected_remaining": 140,
+    "win_pct": 0.0,
+    "top3_pct": 0.0
+  },
+  {
+    "driver": "Pierre Gasly",
+    "team": "Alpine",
+    "actual_pts": 15,
+    "projected_total": 93,
+    "projected_remaining": 78,
+    "win_pct": 0.0,
+    "top3_pct": 0.0
+  },
+  {
+    "driver": "Oliver Bearman",
+    "team": "Haas",
+    "actual_pts": 18,
+    "projected_total": 72,
+    "projected_remaining": 54,
+    "win_pct": 0.0,
+    "top3_pct": 0.0
+  },
+  {
+    "driver": "Liam Lawson",
+    "team": "Racing Bulls",
+    "actual_pts": 9,
+    "projected_total": 48,
+    "projected_remaining": 39,
+    "win_pct": 0.0,
+    "top3_pct": 0.0
+  },
+  {
+    "driver": "Carlos Sainz",
+    "team": "Williams",
+    "actual_pts": 2,
+    "projected_total": 37,
+    "projected_remaining": 35,
+    "win_pct": 0.0,
+    "top3_pct": 0.0
+  },
+  {
+    "driver": "Arvid Lindblad",
+    "team": "Racing Bulls",
+    "actual_pts": 4,
+    "projected_total": 28,
+    "projected_remaining": 24,
+    "win_pct": 0.0,
+    "top3_pct": 0.0
+  },
+  {
+    "driver": "Isack Hadjar",
+    "team": "Red Bull",
+    "actual_pts": 4,
+    "projected_total": 21,
+    "projected_remaining": 17,
+    "win_pct": 0.0,
+    "top3_pct": 0.0
+  },
+  {
+    "driver": "Esteban Ocon",
+    "team": "Haas",
+    "actual_pts": 1,
+    "projected_total": 17,
+    "projected_remaining": 16,
+    "win_pct": 0.0,
+    "top3_pct": 0.0
+  },
+  {
+    "driver": "Franco Colapinto",
+    "team": "Alpine",
+    "actual_pts": 1,
+    "projected_total": 15,
+    "projected_remaining": 14,
+    "win_pct": 0.0,
+    "top3_pct": 0.0
+  },
+  {
+    "driver": "Gabriel Bortoleto",
+    "team": "Audi",
+    "actual_pts": 2,
+    "projected_total": 14,
+    "projected_remaining": 12,
+    "win_pct": 0.0,
+    "top3_pct": 0.0
+  },
+  {
+    "driver": "Nico Hulkenberg",
+    "team": "Audi",
+    "actual_pts": 0,
+    "projected_total": 10,
+    "projected_remaining": 10,
+    "win_pct": 0.0,
+    "top3_pct": 0.0
+  },
+  {
+    "driver": "Sergio Perez",
+    "team": "Cadillac",
+    "actual_pts": 0,
+    "projected_total": 9,
+    "projected_remaining": 9,
+    "win_pct": 0.0,
+    "top3_pct": 0.0
+  },
+  {
+    "driver": "Alex Albon",
+    "team": "Williams",
+    "actual_pts": 0,
+    "projected_total": 6,
+    "projected_remaining": 6,
+    "win_pct": 0.0,
+    "top3_pct": 0.0
+  },
+  {
+    "driver": "Fernando Alonso",
+    "team": "Aston Martin",
+    "actual_pts": 0,
+    "projected_total": 6,
+    "projected_remaining": 6,
+    "win_pct": 0.0,
+    "top3_pct": 0.0
+  },
+  {
+    "driver": "Valtteri Bottas",
+    "team": "Cadillac",
+    "actual_pts": 0,
+    "projected_total": 4,
+    "projected_remaining": 4,
+    "win_pct": 0.0,
+    "top3_pct": 0.0
+  },
+  {
+    "driver": "Lance Stroll",
+    "team": "Aston Martin",
+    "actual_pts": 0,
+    "projected_total": 3,
+    "projected_remaining": 3,
+    "win_pct": 0.0,
+    "top3_pct": 0.0
+  }
+]

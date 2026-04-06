@@ -31,42 +31,42 @@
     };
 
     const WDC_DATA = [
-      { driver: "Max Verstappen", team: "Red Bull", elo: 1710, mcWin: 37.8, bayesWin: 31.8, ensemble: 34.8, avgPts: 325, podiumPct: 78.0, works: true },
-      { driver: "Lando Norris", team: "McLaren", elo: 1565, mcWin: 18.3, bayesWin: 27.8, ensemble: 23.0, avgPts: 293, podiumPct: 64.0, works: false },
-      { driver: "George Russell", team: "Mercedes", elo: 1503, mcWin: 17.0, bayesWin: 8.3, ensemble: 12.7, avgPts: 291, podiumPct: 72.0, works: true },
-      { driver: "Oscar Piastri", team: "McLaren", elo: 1548, mcWin: 3.2, bayesWin: 20.3, ensemble: 11.8, avgPts: 232, podiumPct: 42.0, works: false },
-      { driver: "Charles Leclerc", team: "Ferrari", elo: 1544, mcWin: 16.1, bayesWin: 3.7, ensemble: 9.9, avgPts: 287, podiumPct: 70.0, works: true },
-      { driver: "Lewis Hamilton", team: "Ferrari", elo: 1614, mcWin: 7.3, bayesWin: 0.9, ensemble: 4.1, avgPts: 258, podiumPct: 52.0, works: true },
-      { driver: "Carlos Sainz", team: "Williams", elo: 1512, mcWin: 0.0, bayesWin: 1.8, ensemble: 0.9, avgPts: 137, podiumPct: 8.0, works: false },
-      { driver: "Kimi Antonelli", team: "Mercedes", elo: 1495, mcWin: 0.4, bayesWin: 1.1, ensemble: 0.8, avgPts: 189, podiumPct: 20.0, works: true },
-      { driver: "Isack Hadjar", team: "Red Bull", elo: 1496, mcWin: 0.0, bayesWin: 0.6, ensemble: 0.3, avgPts: 76, podiumPct: 2.0, works: true },
-      { driver: "Alex Albon", team: "Williams", elo: 1429, mcWin: 0.0, bayesWin: 0.6, ensemble: 0.3, avgPts: 65, podiumPct: 1.0, works: false },
-      { driver: "Pierre Gasly", team: "Alpine", elo: 1466, mcWin: 0.0, bayesWin: 0.3, ensemble: 0.1, avgPts: 50, podiumPct: 0, works: false },
-      { driver: "Esteban Ocon", team: "Haas", elo: 1450, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 45, podiumPct: 0, works: false },
-      { driver: "Oliver Bearman", team: "Haas", elo: 1492, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 38, podiumPct: 0, works: false },
-      { driver: "Sergio Pérez", team: "Cadillac", elo: 1501, mcWin: 0.0, bayesWin: 0.5, ensemble: 0.3, avgPts: 23, podiumPct: 0, works: false },
-      { driver: "Franco Colapinto", team: "Alpine", elo: 1479, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 25, podiumPct: 0, works: false },
-      { driver: "Liam Lawson", team: "Racing Bulls", elo: 1492, mcWin: 0.0, bayesWin: 0.4, ensemble: 0.2, avgPts: 23, podiumPct: 0, works: false },
-      { driver: "Arvid Lindblad", team: "Racing Bulls", elo: 1500, mcWin: 0.0, bayesWin: 0.3, ensemble: 0.2, avgPts: 23, podiumPct: 0, works: false },
-      { driver: "Lance Stroll", team: "Aston Martin", elo: 1454, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 15, podiumPct: 0, works: false },
-      { driver: "Fernando Alonso", team: "Aston Martin", elo: 1458, mcWin: 0.0, bayesWin: 0.4, ensemble: 0.2, avgPts: 13, podiumPct: 0, works: false },
-      { driver: "Valtteri Bottas", team: "Cadillac", elo: 1468, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 6, podiumPct: 0, works: false },
-      { driver: "Nico Hülkenberg", team: "Audi", elo: 1375, mcWin: 0.0, bayesWin: 0.4, ensemble: 0.2, avgPts: 7, podiumPct: 0, works: true },
-      { driver: "Gabriel Bortoleto", team: "Audi", elo: 1481, mcWin: 0.0, bayesWin: 0.2, ensemble: 0.1, avgPts: 3, podiumPct: 0, works: true },
+      { driver: "George Russell", team: "Mercedes", elo: 1503, mcWin: 80.2, bayesWin: 80.2, ensemble: 80.2, avgPts: 476, podiumPct: 100.0, works: true, actualPts: 63 },
+      { driver: "Kimi Antonelli", team: "Mercedes", elo: 1495, mcWin: 19.6, bayesWin: 19.6, ensemble: 19.6, avgPts: 447, podiumPct: 99.9, works: true, actualPts: 73 },
+      { driver: "Charles Leclerc", team: "Ferrari", elo: 1544, mcWin: 0.3, bayesWin: 0.3, ensemble: 0.3, avgPts: 353, podiumPct: 87.1, works: true, actualPts: 49 },
+      { driver: "Lewis Hamilton", team: "Ferrari", elo: 1614, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 299, podiumPct: 13.0, works: true, actualPts: 41 },
+      { driver: "Lando Norris", team: "McLaren", elo: 1565, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 175, podiumPct: 0, works: false, actualPts: 24 },
+      { driver: "Oscar Piastri", team: "McLaren", elo: 1548, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 162, podiumPct: 0, works: false, actualPts: 18 },
+      { driver: "Max Verstappen", team: "Red Bull", elo: 1710, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 156, podiumPct: 0, works: true, actualPts: 15 },
+      { driver: "Pierre Gasly", team: "Alpine", elo: 1466, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 94, podiumPct: 0, works: false, actualPts: 15 },
+      { driver: "Oliver Bearman", team: "Haas", elo: 1492, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 73, podiumPct: 0, works: false, actualPts: 18 },
+      { driver: "Liam Lawson", team: "Racing Bulls", elo: 1492, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 48, podiumPct: 0, works: false, actualPts: 9 },
+      { driver: "Carlos Sainz", team: "Williams", elo: 1512, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 38, podiumPct: 0, works: false, actualPts: 2 },
+      { driver: "Arvid Lindblad", team: "Racing Bulls", elo: 1500, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 29, podiumPct: 0, works: false, actualPts: 4 },
+      { driver: "Isack Hadjar", team: "Red Bull", elo: 1496, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 22, podiumPct: 0, works: true, actualPts: 4 },
+      { driver: "Esteban Ocon", team: "Haas", elo: 1450, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 18, podiumPct: 0, works: false, actualPts: 1 },
+      { driver: "Franco Colapinto", team: "Alpine", elo: 1479, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 16, podiumPct: 0, works: false, actualPts: 1 },
+      { driver: "Gabriel Bortoleto", team: "Audi", elo: 1481, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 15, podiumPct: 0, works: true, actualPts: 2 },
+      { driver: "Nico Hülkenberg", team: "Audi", elo: 1375, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 10, podiumPct: 0, works: true, actualPts: 0 },
+      { driver: "Sergio Pérez", team: "Cadillac", elo: 1501, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 9, podiumPct: 0, works: false, actualPts: 0 },
+      { driver: "Alex Albon", team: "Williams", elo: 1429, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 7, podiumPct: 0, works: false, actualPts: 0 },
+      { driver: "Fernando Alonso", team: "Aston Martin", elo: 1458, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 6, podiumPct: 0, works: false, actualPts: 0 },
+      { driver: "Valtteri Bottas", team: "Cadillac", elo: 1468, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 5, podiumPct: 0, works: false, actualPts: 0 },
+      { driver: "Lance Stroll", team: "Aston Martin", elo: 1454, mcWin: 0.0, bayesWin: 0.0, ensemble: 0.0, avgPts: 4, podiumPct: 0, works: false, actualPts: 0 },
     ];
 
     const WCC_DATA = [
-      { team: "Ferrari", drivers: ["Leclerc", "Hamilton"], engine: "Ferrari", works: true, totalPts: 545, titleProb: 30.0, top3Pct: 85.0, pts2025: 398, testRank: 2, expertRating: 92 },
-      { team: "McLaren", drivers: ["Norris", "Piastri"], engine: "Mercedes (cust.)", works: false, totalPts: 525, titleProb: 23.0, top3Pct: 80.0, pts2025: 833, testRank: 4, expertRating: 82 },
-      { team: "Mercedes", drivers: ["Russell", "Antonelli"], engine: "Mercedes", works: true, totalPts: 480, titleProb: 22.0, top3Pct: 75.0, pts2025: 469, testRank: 1, expertRating: 95 },
-      { team: "Red Bull", drivers: ["Verstappen", "Hadjar"], engine: "Ford (RBPT)", works: true, totalPts: 401, titleProb: 22.0, top3Pct: 58.0, pts2025: 454, testRank: 3, expertRating: 85 },
-      { team: "Williams", drivers: ["Sainz", "Albon"], engine: "Mercedes (cust.)", works: false, totalPts: 202, titleProb: 1.5, top3Pct: 4.0, pts2025: 137, testRank: 7, expertRating: 58 },
-      { team: "Haas", drivers: ["Ocon", "Bearman"], engine: "Ferrari (cust.)", works: false, totalPts: 83, titleProb: 0.2, top3Pct: 0.4, pts2025: 79, testRank: 6, expertRating: 62 },
-      { team: "Alpine", drivers: ["Gasly", "Colapinto"], engine: "Mercedes (cust.)", works: false, totalPts: 75, titleProb: 0.1, top3Pct: 0.3, pts2025: 22, testRank: 8, expertRating: 55 },
-      { team: "Racing Bulls", drivers: ["Lawson", "Lindblad"], engine: "Ford (RBPT cust.)", works: false, totalPts: 46, titleProb: 0.1, top3Pct: 0.1, pts2025: 92, testRank: 5, expertRating: 68 },
-      { team: "Cadillac", drivers: ["Pérez", "Bottas"], engine: "Ferrari (cust.)", works: false, totalPts: 29, titleProb: 0.0, top3Pct: 0.0, pts2025: 0, testRank: 11, expertRating: 30 },
-      { team: "Aston Martin", drivers: ["Alonso", "Stroll"], engine: "Honda", works: false, totalPts: 28, titleProb: 0.0, top3Pct: 0.0, pts2025: 89, testRank: 10, expertRating: 42 },
-      { team: "Audi", drivers: ["Hülkenberg", "Bortoleto"], engine: "Audi", works: true, totalPts: 10, titleProb: 0.0, top3Pct: 0.0, pts2025: 70, testRank: 9, expertRating: 48 },
+      { team: "Mercedes", drivers: ["Russell", "Antonelli"], engine: "Mercedes", works: true, totalPts: 923, titleProb: 99.0, top3Pct: 100.0, pts2025: 469, testRank: 1, expertRating: 95 },
+      { team: "Ferrari", drivers: ["Leclerc", "Hamilton"], engine: "Ferrari", works: true, totalPts: 652, titleProb: 1.0, top3Pct: 95.0, pts2025: 398, testRank: 2, expertRating: 92 },
+      { team: "McLaren", drivers: ["Norris", "Piastri"], engine: "Mercedes (cust.)", works: false, totalPts: 337, titleProb: 0.0, top3Pct: 5.0, pts2025: 833, testRank: 4, expertRating: 82 },
+      { team: "Red Bull", drivers: ["Verstappen", "Hadjar"], engine: "Ford (RBPT)", works: true, totalPts: 177, titleProb: 0.0, top3Pct: 0.0, pts2025: 454, testRank: 3, expertRating: 85 },
+      { team: "Alpine", drivers: ["Gasly", "Colapinto"], engine: "Mercedes (cust.)", works: false, totalPts: 110, titleProb: 0.0, top3Pct: 0.0, pts2025: 22, testRank: 8, expertRating: 55 },
+      { team: "Haas", drivers: ["Bearman", "Ocon"], engine: "Ferrari (cust.)", works: false, totalPts: 91, titleProb: 0.0, top3Pct: 0.0, pts2025: 79, testRank: 6, expertRating: 62 },
+      { team: "Racing Bulls", drivers: ["Lawson", "Lindblad"], engine: "Ford (RBPT cust.)", works: false, totalPts: 77, titleProb: 0.0, top3Pct: 0.0, pts2025: 92, testRank: 5, expertRating: 68 },
+      { team: "Williams", drivers: ["Sainz", "Albon"], engine: "Mercedes (cust.)", works: false, totalPts: 44, titleProb: 0.0, top3Pct: 0.0, pts2025: 137, testRank: 7, expertRating: 58 },
+      { team: "Audi", drivers: ["Hülkenberg", "Bortoleto"], engine: "Audi", works: true, totalPts: 25, titleProb: 0.0, top3Pct: 0.0, pts2025: 70, testRank: 9, expertRating: 48 },
+      { team: "Cadillac", drivers: ["Pérez", "Bottas"], engine: "Ferrari (cust.)", works: false, totalPts: 14, titleProb: 0.0, top3Pct: 0.0, pts2025: 0, testRank: 11, expertRating: 30 },
+      { team: "Aston Martin", drivers: ["Alonso", "Stroll"], engine: "Honda", works: false, totalPts: 10, titleProb: 0.0, top3Pct: 0.0, pts2025: 89, testRank: 10, expertRating: 42 },
     ];
 
     const BOOK_WDC = { "Max Verstappen": 22, "George Russell": 28, "Lando Norris": 16, "Oscar Piastri": 10, "Charles Leclerc": 9, "Lewis Hamilton": 5, "Kimi Antonelli": 4 };
@@ -276,7 +276,7 @@
                 <span style={{ fontSize: 9, fontFamily: mono, color: "#e53e3e", letterSpacing: 2.5 }}>ML PREDICTION MODEL</span>
               </div>
               <h1 style={{ fontSize: 22, fontWeight: 700, letterSpacing: -0.3 }}>F1 2026 Championship Predictor</h1>
-              <p style={{ fontSize: 10, color: "#334155", fontFamily: mono, marginTop: 2 }}>10k Monte Carlo · Elo Ratings · Bayesian Ensemble · Kaggle Dataset</p>
+              <p style={{ fontSize: 10, color: "#334155", fontFamily: mono, marginTop: 2 }}>Updated after Round 3 · Bayesian Blend (Pre-season + Actual Results)</p>
             </div>
           </div>
 
@@ -508,9 +508,9 @@
             {/* Footer */}
             <div style={{ marginTop: 24, padding: 12, borderTop: "1px solid rgba(255,255,255,0.03)" }}>
               <div style={{ fontSize: 9, color: "#1e293b", fontFamily: mono, lineHeight: 1.7, textAlign: "center" }}>
-                GBM · Logistic · Bayesian Ensemble · Monte Carlo (10k sims) · LOO RMSE 1.72<br />
-                Data: Kaggle F1 dataset (2014–2024) · Fox Sports (2025) · Bahrain Test 1 (Feb 2026)<br />
-                270 driver-seasons · 19 features · Built with Python + scikit-learn
+                GBM · Bayesian Blend · Monte Carlo (10k sims) · Updated after Round 3 (Japan)<br />
+                Pre-season + actual race data (50/50 blend) · 21 remaining races simulated<br />
+                Kaggle F1 dataset (2014–2024) · Actual 2026 results (Rounds 1-3)
               </div>
             </div>
           </div>
