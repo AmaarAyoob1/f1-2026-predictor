@@ -1,0 +1,200 @@
+[
+  {
+    "driver": "Kimi Antonelli",
+    "team": "Mercedes",
+    "actual_pts": 242,
+    "projected_total": 458,
+    "mc_win": 99.1,
+    "bayes_win": 99.4,
+    "ensemble_win": 99.2
+  },
+  {
+    "driver": "Lewis Hamilton",
+    "team": "Ferrari",
+    "actual_pts": 183,
+    "projected_total": 338,
+    "mc_win": 0.3,
+    "bayes_win": 0.3,
+    "ensemble_win": 0.3
+  },
+  {
+    "driver": "George Russell",
+    "team": "Mercedes",
+    "actual_pts": 183,
+    "projected_total": 337,
+    "mc_win": 0.6,
+    "bayes_win": 0.3,
+    "ensemble_win": 0.4
+  },
+  {
+    "driver": "Charles Leclerc",
+    "team": "Ferrari",
+    "actual_pts": 155,
+    "projected_total": 280,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  },
+  {
+    "driver": "Lando Norris",
+    "team": "McLaren",
+    "actual_pts": 159,
+    "projected_total": 278,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  },
+  {
+    "driver": "Max Verstappen",
+    "team": "Red Bull",
+    "actual_pts": 112,
+    "projected_total": 197,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  },
+  {
+    "driver": "Oscar Piastri",
+    "team": "McLaren",
+    "actual_pts": 106,
+    "projected_total": 173,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  },
+  {
+    "driver": "Isack Hadjar",
+    "team": "Red Bull",
+    "actual_pts": 71,
+    "projected_total": 114,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  },
+  {
+    "driver": "Liam Lawson",
+    "team": "Racing Bulls",
+    "actual_pts": 51,
+    "projected_total": 79,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  },
+  {
+    "driver": "Pierre Gasly",
+    "team": "Alpine",
+    "actual_pts": 35,
+    "projected_total": 56,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  },
+  {
+    "driver": "Arvid Lindblad",
+    "team": "Racing Bulls",
+    "actual_pts": 25,
+    "projected_total": 40,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  },
+  {
+    "driver": "Franco Colapinto",
+    "team": "Alpine",
+    "actual_pts": 19,
+    "projected_total": 31,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  },
+  {
+    "driver": "Oliver Bearman",
+    "team": "Haas",
+    "actual_pts": 18,
+    "projected_total": 28,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  },
+  {
+    "driver": "Gabriel Bortoleto",
+    "team": "Audi",
+    "actual_pts": 10,
+    "projected_total": 18,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  },
+  {
+    "driver": "Nico Hulkenberg",
+    "team": "Audi",
+    "actual_pts": 6,
+    "projected_total": 14,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  },
+  {
+    "driver": "Carlos Sainz",
+    "team": "Williams",
+    "actual_pts": 6,
+    "projected_total": 14,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  },
+  {
+    "driver": "Yuki Tsunoda",
+    "team": "Racing Bulls",
+    "actual_pts": 0,
+    "projected_total": 10,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  },
+  {
+    "driver": "Alex Albon",
+    "team": "Williams",
+    "actual_pts": 5,
+    "projected_total": 9,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  },
+  {
+    "driver": "Esteban Ocon",
+    "team": "Haas",
+    "actual_pts": 3,
+    "projected_total": 8,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  },
+  {
+    "driver": "Fernando Alonso",
+    "team": "Aston Martin",
+    "actual_pts": 3,
+    "projected_total": 5,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  },
+  {
+    "driver": "Lance Stroll",
+    "team": "Aston Martin",
+    "actual_pts": 0,
+    "projected_total": 2,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  },
+  {
+    "driver": "Valtteri Bottas",
+    "team": "Cadillac",
+    "actual_pts": 0,
+    "projected_total": 1,
+    "mc_win": 0.0,
+    "bayes_win": 0.0,
+    "ensemble_win": 0.0
+  }
+]

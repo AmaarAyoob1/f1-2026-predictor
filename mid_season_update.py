@@ -1,225 +1,76 @@
 """
-F1 2026 Mid-Season Update — After Round 3 (Japan)
+F1 2026 Mid-Season Update — After Round 12 (Dutch GP, Zandvoort)
+
+Season state: 12 of 23 rounds complete. 11 GPs + 1 sprint remaining (283 pts available).
 
 Bayesian blending approach:
-1. Lock in actual results from Races 1-3 (Australia, China Sprint, China, Japan)
-2. Compute actual driver performance metrics from real race data
-3. Blend pre-season strength with actual performance
-4. Update team reliability from real DNF/DNS data  
-5. Re-run Monte Carlo for remaining 21 races
-6. Final prediction = actual points + simulated remaining points
+1. Lock in actual points from Rounds 1-12 (official standings)
+2. Derive per-driver performance metrics from real finishing positions
+3. Blend pre-season strength with actual performance (alpha decays as season progresses)
+4. Recompute team reliability from real DNF/DNS counts
+5. Monte Carlo the remaining 11 rounds
+6. Final projection = actual points + simulated remaining points
+
+Two blend weights produce two model views:
+  Monte Carlo (alpha=0.20) still gives pre-season pedigree some weight
+  Bayesian    (alpha=0.05) trusts season-to-date data almost entirely
+  Ensemble    averages the two
 """
 
 import numpy as np
 import pandas as pd
 import json, sys, os
 
-sys.path.insert(0, os.path.dirname(__file__))
-
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from models.train_models import MonteCarloSimulator
 
-# ═══════════════════════════════════════════════════════════
-# ACTUAL 2026 RACE RESULTS — Rounds 1-3 + China Sprint
-# ═══════════════════════════════════════════════════════════
+ROUNDS_COMPLETE = 12
+ROUNDS_TOTAL = 23
+ROUNDS_REMAINING = 11
 
-# Points: 25-18-15-12-10-8-6-4-2-1 (race), 8-7-6-5-4-3-2-1 (sprint top 8)
-# DNS = Did Not Start, DNF = Did Not Finish, NC = Not Classified
+RACE_ORDER = ["AUS", "CHN", "JPN", "MIA", "CAN", "MCO",
+              "BAR", "AUT", "GBR", "BEL", "HUN", "NLD"]
 
-ACTUAL_RESULTS = {
-    "australia": {
-        "round": 1, "type": "race",
-        "results": [
-            ("George Russell", 1, 25),
-            ("Kimi Antonelli", 2, 18),
-            ("Charles Leclerc", 3, 15),
-            ("Lewis Hamilton", 4, 12),
-            ("Lando Norris", 5, 10),
-            ("Max Verstappen", 6, 8),
-            ("Oliver Bearman", 7, 6),
-            ("Arvid Lindblad", 8, 4),
-            ("Gabriel Bortoleto", 9, 2),
-            ("Pierre Gasly", 10, 1),
-            ("Carlos Sainz", 11, 0),
-            ("Liam Lawson", 12, 0),
-            ("Franco Colapinto", 13, 0),
-            ("Esteban Ocon", 14, 0),
-            ("Sergio Perez", 15, 0),
-            ("Lance Stroll", 16, 0),
-            ("Fernando Alonso", 17, 0),
-            ("Alex Albon", 18, 0),
-        ],
-        "dnf": ["Isack Hadjar", "Valtteri Bottas"],
-        "dns": ["Oscar Piastri", "Nico Hulkenberg"],
-    },
-    "china_sprint": {
-        "round": 2, "type": "sprint",
-        "results": [
-            ("George Russell", 1, 8),
-            ("Charles Leclerc", 2, 7),
-            ("Lewis Hamilton", 3, 6),
-            ("Kimi Antonelli", 4, 5),
-            ("Lando Norris", 5, 4),
-            ("Max Verstappen", 6, 3),
-            ("Oliver Bearman", 7, 2),  # estimated based on standings
-            ("Liam Lawson", 8, 1),
-        ],
-        "dnf": [],
-        "dns": [],
-    },
-    "china": {
-        "round": 2, "type": "race",
-        "results": [
-            ("Kimi Antonelli", 1, 25),
-            ("George Russell", 2, 18),
-            ("Lewis Hamilton", 3, 15),
-            ("Charles Leclerc", 4, 12),
-            ("Oliver Bearman", 5, 10),
-            ("Pierre Gasly", 6, 8),
-            ("Liam Lawson", 7, 6),
-            ("Isack Hadjar", 8, 4),
-            ("Carlos Sainz", 9, 2),
-            ("Franco Colapinto", 10, 1),
-            ("Nico Hulkenberg", 11, 0),
-            ("Arvid Lindblad", 12, 0),
-            ("Valtteri Bottas", 13, 0),
-            ("Esteban Ocon", 14, 0),
-            ("Sergio Perez", 15, 0),
-            ("Fernando Alonso", 16, 0),
-        ],
-        "dnf": ["Max Verstappen", "Lance Stroll"],
-        "dns": ["Lando Norris", "Oscar Piastri", "Alex Albon", "Gabriel Bortoleto"],
-    },
-    "japan": {
-        "round": 3, "type": "race",
-        "results": [
-            ("Kimi Antonelli", 1, 25),
-            ("Oscar Piastri", 2, 18),
-            ("Charles Leclerc", 3, 15),
-            ("George Russell", 4, 12),
-            ("Lando Norris", 5, 10),
-            ("Lewis Hamilton", 6, 8),
-            ("Pierre Gasly", 7, 6),
-            ("Max Verstappen", 8, 4),
-            ("Liam Lawson", 9, 2),
-            ("Esteban Ocon", 10, 1),
-            ("Nico Hulkenberg", 11, 0),
-            ("Isack Hadjar", 12, 0),
-            ("Gabriel Bortoleto", 13, 0),
-            ("Arvid Lindblad", 14, 0),
-            ("Carlos Sainz", 15, 0),
-            ("Franco Colapinto", 16, 0),
-            ("Sergio Perez", 17, 0),
-            ("Fernando Alonso", 18, 0),
-            ("Valtteri Bottas", 19, 0),
-            ("Alex Albon", 20, 0),
-        ],
-        "dnf": ["Oliver Bearman", "Lance Stroll"],
-        "dns": [],
-    },
+# Official points after Round 12 + per-race finishing positions.
+# "D" = DNF, "N" = DNS, "-" = did not participate.
+SEASON_TO_DATE = {
+    "Kimi Antonelli":    {"team": "Mercedes",     "pts": 242, "pos": [2, 1, 1, 1, 1, 1, 16, 3, 15, 1, 3, 2]},
+    "George Russell":    {"team": "Mercedes",     "pts": 183, "pos": [1, 2, 4, 4, "D", 12, 2, 1, 2, "D", 7, 3]},
+    "Lewis Hamilton":    {"team": "Ferrari",      "pts": 183, "pos": [4, 3, 6, 6, 2, 2, 1, 5, 3, 4, 5, 4]},
+    "Lando Norris":      {"team": "McLaren",      "pts": 159, "pos": [5, "N", 5, 2, "D", "D", 3, 7, 4, 7, 1, 1]},
+    "Charles Leclerc":   {"team": "Ferrari",      "pts": 155, "pos": [3, 4, 3, 8, 4, "D", 15, 8, 1, 2, 4, 5]},
+    "Max Verstappen":    {"team": "Red Bull",     "pts": 112, "pos": [6, "D", 8, 5, 3, "D", 4, 2, 20, 3, 2, "D"]},
+    "Oscar Piastri":     {"team": "McLaren",      "pts": 106, "pos": ["N", "N", 2, 3, 11, 4, 5, 4, 11, 5, "D", 6]},
+    "Isack Hadjar":      {"team": "Red Bull",     "pts": 71,  "pos": ["D", 8, 12, "D", 5, 3, 6, 6, 5, 6, 6, "-"]},
+    "Liam Lawson":       {"team": "Racing Bulls", "pts": 51,  "pos": [13, 7, 9, "D", 7, 5, 8, 9, 6, 12, 8, 7]},
+    "Pierre Gasly":      {"team": "Alpine",       "pts": 35,  "pos": [10, 6, 7, "D", 8, 7, 7, 13, 10, 11, 12, 10]},
+    "Arvid Lindblad":    {"team": "Racing Bulls", "pts": 25,  "pos": [8, 12, 14, 14, "N", 6, 9, 10, 7, 9, 10, 12]},
+    "Franco Colapinto":  {"team": "Alpine",       "pts": 19,  "pos": [14, 10, 16, 7, 6, 14, 10, 15, 9, 10, 15, 14]},
+    "Oliver Bearman":    {"team": "Haas",         "pts": 18,  "pos": [7, 5, "D", 11, 10, "D", 17, 14, 12, 14, 19, "D"]},
+    "Gabriel Bortoleto": {"team": "Audi",         "pts": 10,  "pos": [9, "N", 13, 12, 13, 11, 11, 11, 8, 8, 11, 13]},
+    "Nico Hulkenberg":   {"team": "Audi",         "pts": 6,   "pos": ["N", 11, 11, "D", 12, 13, "D", 12, "D", 13, 9, 8]},
+    "Carlos Sainz":      {"team": "Williams",     "pts": 6,   "pos": [15, 9, 15, 9, 9, 16, 12, "D", 17, 16, 18, 16]},
+    "Alex Albon":        {"team": "Williams",     "pts": 5,   "pos": [12, "N", 20, 10, "D", 8, "D", 17, "D", 15, 17, 17]},
+    "Esteban Ocon":      {"team": "Haas",         "pts": 3,   "pos": [11, 14, 10, 13, 14, 9, 13, 16, 13, 17, 16, "D"]},
+    "Fernando Alonso":   {"team": "Aston Martin", "pts": 3,   "pos": ["D", "D", 18, 15, "D", 10, "D", 18, 18, 19, 14, 9]},
+    "Yuki Tsunoda":      {"team": "Racing Bulls", "pts": 0,   "pos": ["-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", 11]},
+    "Lance Stroll":      {"team": "Aston Martin", "pts": 0,   "pos": ["D", "D", "D", 17, 15, "D", "D", "D", 19, "D", 13, "D"]},
+    "Valtteri Bottas":   {"team": "Cadillac",     "pts": 0,   "pos": ["D", 13, 19, 18, 16, "D", "D", "D", 16, 18, "D", "D"]},
 }
 
-# ═══════════════════════════════════════════════════════════
-# COMPUTE ACTUAL PERFORMANCE METRICS
-# ═══════════════════════════════════════════════════════════
+DRIVER_TEAMS = {d: v["team"] for d, v in SEASON_TO_DATE.items()}
+ALL_DRIVERS = list(SEASON_TO_DATE.keys())
 
-ALL_DRIVERS = [
-    "Max Verstappen", "Lando Norris", "George Russell", "Oscar Piastri",
-    "Charles Leclerc", "Lewis Hamilton", "Carlos Sainz", "Kimi Antonelli",
-    "Isack Hadjar", "Alex Albon", "Pierre Gasly", "Esteban Ocon",
-    "Oliver Bearman", "Sergio Perez", "Franco Colapinto", "Liam Lawson",
-    "Arvid Lindblad", "Lance Stroll", "Fernando Alonso", "Valtteri Bottas",
-    "Nico Hulkenberg", "Gabriel Bortoleto",
-]
-
-DRIVER_TEAMS = {
-    "Max Verstappen": "Red Bull", "Isack Hadjar": "Red Bull",
-    "Lando Norris": "McLaren", "Oscar Piastri": "McLaren",
-    "George Russell": "Mercedes", "Kimi Antonelli": "Mercedes",
-    "Charles Leclerc": "Ferrari", "Lewis Hamilton": "Ferrari",
-    "Carlos Sainz": "Williams", "Alex Albon": "Williams",
-    "Pierre Gasly": "Alpine", "Franco Colapinto": "Alpine",
-    "Esteban Ocon": "Haas", "Oliver Bearman": "Haas",
-    "Sergio Perez": "Cadillac", "Valtteri Bottas": "Cadillac",
-    "Liam Lawson": "Racing Bulls", "Arvid Lindblad": "Racing Bulls",
-    "Lance Stroll": "Aston Martin", "Fernando Alonso": "Aston Martin",
-    "Nico Hulkenberg": "Audi", "Gabriel Bortoleto": "Audi",
-}
-
-
-def compute_actual_metrics():
-    """Compute per-driver performance metrics from actual race results."""
-    
-    driver_stats = {d: {
-        "points": 0, "races_entered": 0, "races_finished": 0,
-        "finishes": [], "wins": 0, "podiums": 0, "top10": 0,
-        "dnfs": 0, "dns": 0,
-    } for d in ALL_DRIVERS}
-    
-    for event_name, event in ACTUAL_RESULTS.items():
-        for driver, pos, pts in event["results"]:
-            s = driver_stats[driver]
-            s["points"] += pts
-            s["races_entered"] += 1
-            s["races_finished"] += 1
-            s["finishes"].append(pos)
-            if pos == 1: s["wins"] += 1
-            if pos <= 3: s["podiums"] += 1
-            if pos <= 10: s["top10"] += 1
-        
-        for driver in event.get("dnf", []):
-            s = driver_stats[driver]
-            s["races_entered"] += 1
-            s["dnfs"] += 1
-            s["finishes"].append(22)  # DNF treated as last
-        
-        for driver in event.get("dns", []):
-            s = driver_stats[driver]
-            s["dns"] += 1
-            # DNS counts against reliability but not finish position
-    
-    # Compute derived metrics
-    results = []
-    for driver in ALL_DRIVERS:
-        s = driver_stats[driver]
-        n_events = s["races_entered"] + s["dns"]  # total events driver should have raced
-        avg_finish = np.mean(s["finishes"]) if s["finishes"] else 22
-        pts_per_race = s["points"] / max(n_events, 1)
-        reliability = s["races_finished"] / max(n_events, 1)
-        
-        results.append({
-            "driver": driver,
-            "team": DRIVER_TEAMS[driver],
-            "actual_points": s["points"],
-            "avg_finish": round(avg_finish, 1),
-            "pts_per_race": round(pts_per_race, 1),
-            "wins": s["wins"],
-            "podiums": s["podiums"],
-            "top10_rate": round(s["top10"] / max(s["races_entered"], 1), 2),
-            "reliability": round(reliability, 2),
-            "dnfs": s["dnfs"],
-            "dns": s["dns"],
-            "events": n_events,
-        })
-    
-    return pd.DataFrame(results).sort_values("actual_points", ascending=False)
-
-
-# ═══════════════════════════════════════════════════════════
-# PRE-SEASON STRENGTH SCORES (from original model)
-# ═══════════════════════════════════════════════════════════
-
-# These are the composite strength scores from the pre-season model
-# (historical + forward-looking + driver talent components)
-# Extracted from running main.py
 PRESEASON_STRENGTHS = {
     "Max Verstappen": 195.2, "Lando Norris": 176.8, "George Russell": 172.4,
     "Charles Leclerc": 170.1, "Oscar Piastri": 163.5, "Lewis Hamilton": 168.7,
     "Carlos Sainz": 148.2, "Kimi Antonelli": 141.4, "Isack Hadjar": 130.5,
     "Alex Albon": 128.7, "Pierre Gasly": 133.1, "Esteban Ocon": 130.2,
-    "Oliver Bearman": 131.8, "Sergio Perez": 126.4, "Franco Colapinto": 125.6,
+    "Oliver Bearman": 131.8, "Franco Colapinto": 125.6,
     "Liam Lawson": 128.9, "Arvid Lindblad": 127.3, "Lance Stroll": 121.5,
     "Fernando Alonso": 123.8, "Valtteri Bottas": 119.2,
     "Nico Hulkenberg": 117.5, "Gabriel Bortoleto": 118.9,
+    "Yuki Tsunoda": 128.0,
 }
 
 PRESEASON_RELIABILITY = {
@@ -229,239 +80,208 @@ PRESEASON_RELIABILITY = {
     "Aston Martin": 0.75, "Audi": 0.78,
 }
 
+PRESEASON_PROBS = {
+    "Max Verstappen": 34.8, "Lando Norris": 23.0, "George Russell": 12.7,
+    "Oscar Piastri": 11.8, "Charles Leclerc": 9.9, "Lewis Hamilton": 4.1,
+    "Carlos Sainz": 0.9, "Kimi Antonelli": 0.8,
+}
 
-# ═══════════════════════════════════════════════════════════
-# BAYESIAN BLENDING: PRE-SEASON + ACTUAL PERFORMANCE
-# ═══════════════════════════════════════════════════════════
+
+def compute_actual_metrics():
+    rows = []
+    for driver, d in SEASON_TO_DATE.items():
+        positions = [p for p in d["pos"] if isinstance(p, int)]
+        dnfs = sum(1 for p in d["pos"] if p == "D")
+        dns = sum(1 for p in d["pos"] if p == "N")
+        entered = max(len(positions) + dnfs + dns, 1)
+
+        avg_finish = float(np.mean(positions)) if positions else 22.0
+        wins = sum(1 for p in positions if p == 1)
+        podiums = sum(1 for p in positions if p <= 3)
+        top10 = sum(1 for p in positions if p <= 10)
+
+        rows.append({
+            "driver": driver, "team": d["team"], "actual_points": d["pts"],
+            "avg_finish": round(avg_finish, 1),
+            "pts_per_round": round(d["pts"] / entered, 1),
+            "wins": wins, "podiums": podiums,
+            "top10_rate": round(top10 / entered, 2),
+            "reliability": round(len(positions) / entered, 2),
+            "dnfs": dnfs, "dns": dns, "entered": entered,
+        })
+    return pd.DataFrame(rows).sort_values("actual_points", ascending=False).reset_index(drop=True)
+
 
 def compute_actual_strength(metrics_df):
-    """
-    Convert actual race metrics into a strength score on the same scale
-    as the pre-season composite strength (~100-200 range).
-    
-    Uses: points per race, average finish, win rate, and reliability.
-    """
-    actual_strengths = {}
-    
-    for _, row in metrics_df.iterrows():
-        driver = row["driver"]
-        
-        # Points-per-race scaled to strength (25 pts/race max → ~200 strength)
-        pts_component = row["pts_per_race"] * 7  # 25 * 7 = 175 for a perfect scorer
-        
-        # Finish position component (P1 avg → high bonus, P20 → low)
-        position_component = max(0, (22 - row["avg_finish"]) * 3)
-        
-        # Win bonus
-        win_component = row["wins"] * 5
-        
-        # Base floor (even a DNS driver has some inherent ability)
-        base = 100
-        
-        actual_strengths[driver] = base + pts_component + position_component + win_component
-    
-    return actual_strengths
+    strengths = {}
+    for _, r in metrics_df.iterrows():
+        strengths[r["driver"]] = (
+            100
+            + r["pts_per_round"] * 3.2
+            + max(0, (22 - r["avg_finish"]) * 2.6)
+            + r["wins"] * 2.5
+            + r["podiums"] * 1.2
+        )
+    return strengths
 
 
 def compute_actual_reliability(metrics_df):
-    """Compute team reliability from actual DNF/DNS data."""
-    team_events = {}
-    team_clean = {}
-    
-    for _, row in metrics_df.iterrows():
-        team = row["team"]
-        events = row["events"]
-        clean = events - row["dnfs"] - row["dns"]
-        
-        team_events[team] = team_events.get(team, 0) + events
-        team_clean[team] = team_clean.get(team, 0) + clean
-    
-    actual_reliability = {}
-    for team in team_events:
-        if team_events[team] > 0:
-            actual_reliability[team] = team_clean[team] / team_events[team]
-        else:
-            actual_reliability[team] = 0.80
-    
-    return actual_reliability
+    entered, clean = {}, {}
+    for _, r in metrics_df.iterrows():
+        t = r["team"]
+        entered[t] = entered.get(t, 0) + r["entered"]
+        clean[t] = clean.get(t, 0) + (r["entered"] - r["dnfs"] - r["dns"])
+    return {t: clean[t] / entered[t] for t in entered if entered[t] > 0}
 
 
-def blend_strengths(preseason, actual, alpha=0.50):
-    """
-    Blend pre-season and actual strengths.
-    
-    alpha = weight on pre-season (0.5 = equal blend after 3 races)
-    As more races happen, alpha should decrease:
-      3 races: alpha = 0.50
-      6 races: alpha = 0.30
-      12 races: alpha = 0.15
-      18+ races: alpha = 0.05
-    """
-    blended = {}
-    for driver in preseason:
-        pre = preseason[driver]
-        act = actual.get(driver, pre)  # fallback to preseason if no actual data
-        blended[driver] = alpha * pre + (1 - alpha) * act
-    return blended
+def blend(preseason, actual, alpha):
+    return {k: alpha * preseason[k] + (1 - alpha) * actual.get(k, preseason[k]) for k in preseason}
 
 
-def blend_reliability(preseason, actual, alpha=0.40):
-    """Blend pre-season and actual reliability. Less trust in preseason for reliability."""
-    blended = {}
-    for team in preseason:
-        pre = preseason[team]
-        act = actual.get(team, pre)
-        blended[team] = alpha * pre + (1 - alpha) * act
-    return blended
+# Strength estimates are themselves uncertain. Treating them as known exactly
+# is what made the previous version return 100% title probabilities. We resample
+# each driver's strength per batch from N(estimate, STRENGTH_SIGMA); sigma shrinks
+# as more of the season is observed.
+STRENGTH_SIGMA = 6.0 * np.sqrt(ROUNDS_REMAINING / ROUNDS_TOTAL)
+N_PARAM_DRAWS = 40
+SIMS_PER_DRAW = 400
 
 
-# ═══════════════════════════════════════════════════════════
-# MAIN UPDATE PIPELINE
-# ═══════════════════════════════════════════════════════════
+def run_projection(metrics, actual_strengths, actual_reliability, alpha_s, alpha_r, seed=42):
+    bl_s = blend(PRESEASON_STRENGTHS, actual_strengths, alpha_s)
+    bl_r = blend(PRESEASON_RELIABILITY, actual_reliability, alpha_r)
+
+    raw = list(bl_s.values())
+    lo, hi = min(raw), max(raw)
+    norm = {d: 30 + (s - lo) / (hi - lo) * 70 for d, s in bl_s.items()}
+
+    actual_pts = dict(zip(metrics["driver"], metrics["actual_points"]))
+    rng = np.random.default_rng(seed)
+
+    point_batches, driver_order = [], None
+
+    for draw in range(N_PARAM_DRAWS):
+        # Sample a plausible "true" strength vector for this draw
+        jittered = {
+            d: float(np.clip(s + rng.normal(0, STRENGTH_SIGMA), 5, 110))
+            for d, s in norm.items()
+        }
+        mc = MonteCarloSimulator(n_simulations=SIMS_PER_DRAW, random_state=seed + draw)
+        mc.N_RACES_2026 = ROUNDS_REMAINING
+        mc.simulate_season(jittered, bl_r, DRIVER_TEAMS)
+        if driver_order is None:
+            driver_order = mc.last_drivers
+        point_batches.append(mc.last_all_points)
+
+    all_points = np.vstack(point_batches)                    # (n_sims_total, n_drivers)
+    locked = np.array([actual_pts.get(d, 0) for d in driver_order])
+    totals = all_points + locked
+
+    winners = np.argmax(totals, axis=1)
+    counts = np.bincount(winners, minlength=len(driver_order))
+    n_total = all_points.shape[0]
+    probs = {driver_order[i]: counts[i] / n_total * 100 for i in range(len(driver_order))}
+
+    res = pd.DataFrame({
+        "driver": driver_order,
+        "team": [DRIVER_TEAMS[d] for d in driver_order],
+        "actual_points": locked,
+        "mean_remaining": all_points.mean(axis=0),
+        "std_remaining": all_points.std(axis=0),
+        "projected_total": totals.mean(axis=0),
+        "p_top3": (np.argsort(np.argsort(-totals, axis=1), axis=1) < 3).mean(axis=0) * 100,
+    })
+    res = res.sort_values("projected_total", ascending=False).reset_index(drop=True)
+    return res, probs
+
 
 def main():
-    print("=" * 70)
-    print("  F1 2026 MID-SEASON UPDATE — After Round 3 (Japan)")
-    print("=" * 70)
-    
-    # Step 1: Compute actual metrics
+    print("=" * 78)
+    print(f"  F1 2026 MID-SEASON UPDATE — After Round {ROUNDS_COMPLETE} of {ROUNDS_TOTAL} (Dutch GP)")
+    print("=" * 78)
+
     metrics = compute_actual_metrics()
-    print("\n📊 ACTUAL STANDINGS AFTER 3 RACES:")
-    print(f"  {'Driver':<22} {'Pts':>5} {'AvgFin':>7} {'Pts/R':>6} {'W':>3} {'Rel':>5}")
-    print("  " + "─" * 55)
-    for _, r in metrics.head(15).iterrows():
-        print(f"  {r['driver']:<22} {r['actual_points']:>5} {r['avg_finish']:>7} "
-              f"{r['pts_per_race']:>6} {r['wins']:>3} {r['reliability']:>5}")
-    
-    # Step 2: Compute actual strength scores
-    actual_strengths = compute_actual_strength(metrics)
-    
-    # Step 3: Blend pre-season + actual
-    ALPHA = 0.50  # 50% preseason, 50% actual after 3 races
-    blended_strengths = blend_strengths(PRESEASON_STRENGTHS, actual_strengths, alpha=ALPHA)
-    
-    actual_reliability = compute_actual_reliability(metrics)
-    blended_reliability = blend_reliability(PRESEASON_RELIABILITY, actual_reliability, alpha=0.40)
-    
-    print(f"\n🔀 BLENDED STRENGTHS (α={ALPHA} preseason / {1-ALPHA} actual):")
-    print(f"  {'Driver':<22} {'PreSeason':>10} {'Actual':>10} {'Blended':>10} {'Δ':>8}")
-    print("  " + "─" * 62)
-    sorted_drivers = sorted(blended_strengths.keys(), key=lambda d: blended_strengths[d], reverse=True)
-    for d in sorted_drivers:
-        pre = PRESEASON_STRENGTHS.get(d, 0)
-        act = actual_strengths.get(d, 0)
-        bl = blended_strengths[d]
-        delta = bl - pre
-        print(f"  {d:<22} {pre:>10.1f} {act:>10.1f} {bl:>10.1f} {delta:>+8.1f}")
-    
-    print(f"\n🔧 BLENDED TEAM RELIABILITY:")
-    for team in sorted(blended_reliability, key=lambda t: blended_reliability[t], reverse=True):
-        pre = PRESEASON_RELIABILITY.get(team, 0)
-        act = actual_reliability.get(team, 0)
-        bl = blended_reliability[team]
-        print(f"  {team:<16} Pre: {pre:.2f}  Actual: {act:.2f}  Blended: {bl:.2f}")
-    
-    # Step 4: Normalize strengths to 30-100 scale for MC simulator
-    raw_strengths = list(blended_strengths.values())
-    min_s, max_s = min(raw_strengths), max(raw_strengths)
-    normalized = {}
-    for d, s in blended_strengths.items():
-        normalized[d] = 30 + (s - min_s) / (max_s - min_s) * 70
-    
-    # Step 5: Run MC simulation for REMAINING 21 races
-    print(f"\n🎲 Running Monte Carlo simulation for 21 remaining races...")
-    
-    mc = MonteCarloSimulator(n_simulations=10000, random_state=42)
-    # Override the number of races
-    mc.N_RACES_2026 = 21  # remaining races
-    
-    mc_results = mc.simulate_season(normalized, blended_reliability, DRIVER_TEAMS)
-    
-    # Step 6: Add actual points to simulated remaining points
     actual_pts = dict(zip(metrics["driver"], metrics["actual_points"]))
-    mc_results["actual_points"] = mc_results["driver"].map(actual_pts).fillna(0)
-    mc_results["total_mean_points"] = mc_results["actual_points"] + mc_results["mean_points"]
-    
-    # Re-rank by total projected points
-    mc_results = mc_results.sort_values("total_mean_points", ascending=False).reset_index(drop=True)
-    
-    # Step 7: Output updated predictions
-    print("\n" + "=" * 70)
-    print("  🏆 UPDATED 2026 WDC PREDICTIONS (Post-Japan)")
-    print("=" * 70)
-    print(f"\n  {'Pos':<4} {'Driver':<22} {'Team':<14} {'Actual':>7} {'Proj Rem':>9} {'Total':>7} {'Win%':>7}")
-    print("  " + "─" * 75)
-    
-    for i, row in mc_results.iterrows():
-        pos = i + 1
-        win_pct = row["p_champion"] * 100
-        marker = " ◄" if pos <= 3 else ""
-        print(f"  {pos:<4} {row['driver']:<22} {row['team']:<14} "
-              f"{row['actual_points']:>7.0f} {row['mean_points']:>9.0f} "
-              f"{row['total_mean_points']:>7.0f} {win_pct:>6.1f}%{marker}")
-    
-    # Step 8: Constructors
-    print("\n" + "=" * 70)
-    print("  🏗  UPDATED 2026 WCC PREDICTIONS (Post-Japan)")
-    print("=" * 70)
-    
-    team_totals = {}
-    for _, row in mc_results.iterrows():
-        team = row["team"]
-        if team not in team_totals:
-            team_totals[team] = {"total": 0, "actual": 0, "drivers": []}
-        team_totals[team]["total"] += row["total_mean_points"]
-        team_totals[team]["actual"] += row["actual_points"]
-        team_totals[team]["drivers"].append(row["driver"].split()[-1])
-    
-    sorted_teams = sorted(team_totals.items(), key=lambda x: x[1]["total"], reverse=True)
-    print(f"\n  {'Pos':<4} {'Team':<16} {'Drivers':<28} {'Actual':>7} {'Projected':>10}")
-    print("  " + "─" * 68)
-    for i, (team, data) in enumerate(sorted_teams):
-        drivers_str = " & ".join(data["drivers"])
-        print(f"  {i+1:<4} {team:<16} {drivers_str:<28} {data['actual']:>7.0f} {data['total']:>10.0f}")
-    
-    # Step 9: Generate comparison table
-    print("\n" + "=" * 70)
-    print("  📊 PRE-SEASON vs UPDATED COMPARISON")
-    print("=" * 70)
-    
-    preseason_order = ["Max Verstappen", "Lando Norris", "George Russell",
-                       "Oscar Piastri", "Charles Leclerc", "Lewis Hamilton",
-                       "Carlos Sainz", "Kimi Antonelli"]
-    
-    print(f"\n  {'Driver':<22} {'Pre-Season':>10} {'Updated':>10} {'Actual Pos':>11}")
-    print("  " + "─" * 55)
-    
-    actual_ranking = {row["driver"]: i+1 for i, (_, row) in enumerate(metrics.iterrows())}
-    updated_ranking = {row["driver"]: i+1 for i, (_, row) in enumerate(mc_results.iterrows())}
-    
-    for d in preseason_order:
-        pre_rank = preseason_order.index(d) + 1
-        upd_rank = updated_ranking.get(d, "?")
-        act_rank = actual_ranking.get(d, "?")
-        print(f"  {d:<22} {'P'+str(pre_rank):>10} {'P'+str(upd_rank):>10} {'P'+str(act_rank):>11}")
-    
-    # Step 10: Save results for dashboard update
-    dashboard_data = []
-    for i, row in mc_results.iterrows():
-        dashboard_data.append({
-            "driver": row["driver"],
-            "team": row["team"],
-            "actual_pts": int(row["actual_points"]),
-            "projected_total": int(row["total_mean_points"]),
-            "projected_remaining": int(row["mean_points"]),
-            "win_pct": round(row["p_champion"] * 100, 1),
-            "top3_pct": round(row["p_top3"] * 100, 1),
+
+    print(f"\nACTUAL STANDINGS AFTER {ROUNDS_COMPLETE} ROUNDS")
+    print(f"  {'Driver':<20} {'Team':<14} {'Pts':>5} {'AvgFin':>7} {'W':>3} {'Pod':>4} {'Rel':>6}")
+    print("  " + "-" * 66)
+    for _, r in metrics.iterrows():
+        print(f"  {r['driver']:<20} {r['team']:<14} {r['actual_points']:>5} "
+              f"{r['avg_finish']:>7} {r['wins']:>3} {r['podiums']:>4} {r['reliability']:>6}")
+
+    actual_strengths = compute_actual_strength(metrics)
+    actual_reliability = compute_actual_reliability(metrics)
+
+    print(f"\nTEAM RELIABILITY - pre-season vs actual")
+    print(f"  {'Team':<16} {'Pre':>7} {'Actual':>8} {'Delta':>8}")
+    print("  " + "-" * 42)
+    for t in sorted(actual_reliability, key=lambda x: actual_reliability[x], reverse=True):
+        pre = PRESEASON_RELIABILITY.get(t, 0.80)
+        act = actual_reliability[t]
+        print(f"  {t:<16} {pre:>7.2f} {act:>8.2f} {act-pre:>+8.2f}")
+
+    mc_res, mc_probs = run_projection(metrics, actual_strengths, actual_reliability, 0.20, 0.25, seed=42)
+    bay_res, bay_probs = run_projection(metrics, actual_strengths, actual_reliability, 0.05, 0.10, seed=101)
+    ens_probs = {d: (mc_probs.get(d, 0) + bay_probs.get(d, 0)) / 2 for d in ALL_DRIVERS}
+
+    mc_tot = dict(zip(mc_res["driver"], mc_res["projected_total"]))
+    bay_tot = dict(zip(bay_res["driver"], bay_res["projected_total"]))
+    order = sorted(ALL_DRIVERS, key=lambda d: (mc_tot.get(d, 0) + bay_tot.get(d, 0)) / 2, reverse=True)
+
+    print("\n" + "=" * 78)
+    print(f"  UPDATED WDC PROJECTION - {ROUNDS_REMAINING} rounds remaining (283 pts available)")
+    print("=" * 78)
+    print(f"\n  {'Pos':<4} {'Driver':<20} {'Now':>5} {'Proj':>6} {'MC%':>7} {'Bayes%':>8} {'Ens%':>7}")
+    print("  " + "-" * 62)
+    for i, d in enumerate(order):
+        proj = (mc_tot.get(d, 0) + bay_tot.get(d, 0)) / 2
+        print(f"  {i+1:<4} {d:<20} {actual_pts.get(d,0):>5} {proj:>6.0f} "
+              f"{mc_probs.get(d,0):>6.1f}% {bay_probs.get(d,0):>7.1f}% {ens_probs.get(d,0):>6.1f}%")
+
+    print("\n" + "=" * 78)
+    print("  UPDATED WCC PROJECTION")
+    print("=" * 78)
+    team_now, team_proj = {}, {}
+    for d in ALL_DRIVERS:
+        t = DRIVER_TEAMS[d]
+        team_now[t] = team_now.get(t, 0) + actual_pts.get(d, 0)
+        team_proj[t] = team_proj.get(t, 0) + (mc_tot.get(d, 0) + bay_tot.get(d, 0)) / 2
+    print(f"\n  {'Pos':<4} {'Team':<16} {'Now':>6} {'Projected':>11}")
+    print("  " + "-" * 42)
+    for i, (t, p) in enumerate(sorted(team_proj.items(), key=lambda x: x[1], reverse=True)):
+        print(f"  {i+1:<4} {t:<16} {team_now.get(t,0):>6} {p:>11.0f}")
+
+    print("\n" + "=" * 78)
+    print("  PRE-SEASON MODEL SCORECARD")
+    print("=" * 78)
+    actual_rank = {r["driver"]: i + 1 for i, (_, r) in enumerate(metrics.iterrows())}
+    preseason_rank = {d: i + 1 for i, d in enumerate(PRESEASON_PROBS)}
+    print(f"\n  {'Driver':<20} {'Pre %':>7} {'PreRank':>8} {'NowRank':>8} {'Error':>7}")
+    print("  " + "-" * 54)
+    errors = []
+    for d, p in PRESEASON_PROBS.items():
+        pr, ar = preseason_rank[d], actual_rank.get(d, 22)
+        errors.append(abs(pr - ar))
+        print(f"  {d:<20} {p:>6.1f}% {pr:>8} {ar:>8} {pr-ar:>+7}")
+    print(f"\n  Mean absolute rank error (top 8): {np.mean(errors):.2f} positions")
+
+    out = []
+    for d in order:
+        out.append({
+            "driver": d, "team": DRIVER_TEAMS[d],
+            "actual_pts": int(actual_pts.get(d, 0)),
+            "projected_total": int((mc_tot.get(d, 0) + bay_tot.get(d, 0)) / 2),
+            "mc_win": round(mc_probs.get(d, 0), 1),
+            "bayes_win": round(bay_probs.get(d, 0), 1),
+            "ensemble_win": round(ens_probs.get(d, 0), 1),
         })
-    
-    with open("visualizations/updated_predictions_r3.json", "w") as f:
-        json.dump(dashboard_data, f, indent=2)
-    print(f"\n  Updated predictions saved to visualizations/updated_predictions_r3.json")
-    
-    print("\n" + "=" * 70)
-    print("  UPDATE COMPLETE")
-    print("=" * 70)
+    os.makedirs("visualizations", exist_ok=True)
+    with open("visualizations/updated_predictions_r12.json", "w") as f:
+        json.dump(out, f, indent=2)
+    print("\n  Saved -> visualizations/updated_predictions_r12.json")
+    print("=" * 78)
+    return out, metrics, team_now, team_proj
 
 
 if __name__ == "__main__":
